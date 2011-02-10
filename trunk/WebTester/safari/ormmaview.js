@@ -401,7 +401,11 @@
 			for (var i=0; i<scriptsCount; i++){
 				var script = doc.createElement('script');
 				script.type = "text/javascript";
-				script.text = scripts[i].text;
+				if (scripts[i].text === '') {
+					script.src = scripts[i].src;
+				} else {
+					script.text = scripts[i].text;
+				}
 				doc.body.appendChild(script);
 			}
 			initAdFrame();
