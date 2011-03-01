@@ -86,6 +86,14 @@ div[class~=consoleFrame] {
 	clear:left;
 }
 
+#title {
+	width:150px;
+	height:31px;
+	float:right;
+	margin:7px 5px 0px 0px;
+	font-size:x-large;
+}
+
 #logo {
 	background-image:url(../img/ormma-logo.jpg);
 	width:153px;
