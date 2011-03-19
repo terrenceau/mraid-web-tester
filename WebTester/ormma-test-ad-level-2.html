@@ -1,3 +1,13 @@
+<!--
+/*
+ *  Copyright (c) 2011 The ORMMA.org project authors. All Rights Reserved.
+ *
+ *  Use of this source code is governed by a BSD-style license
+ *  that can be found in the LICENSE file in the root of the source
+ *  tree. All contributing project authors may
+ *  be found in the AUTHORS file in the root of the source tree.
+ */
+-->
 <!-- Define our styles -->
 <style>
 
@@ -8,30 +18,30 @@
    }
 
 
-   #expandedad { 
-      position:absolute; 
-      left:0px; 
+   #expandedad {
+      position:absolute;
+      left:0px;
       top:0px;
-      clip:rect( 0, 300, 250, 0 ); 
+      clip:rect( 0, 300, 250, 0 );
       display:none;
    }
 
    #expanddata {
-      position:absolute; 
-      left:15px; 
+      position:absolute;
+      left:15px;
       top:15px;
       color:green;
    }
 
    #data {
-      position:absolute; 
-      left:20px; 
+      position:absolute;
+      left:20px;
       top:60px;
       color:green;
    }
 
-   img { 
-      border:none 
+   img {
+      border:none
    }
 
    #shrink {
@@ -39,11 +49,11 @@
       left:255px;
       top:5px;
    }
-   
+
    #ad {
 		margin:0px;
-		position:absolute; 
-		left:0px; 
+		position:absolute;
+		left:0px;
 		top:0px;
 		}
 </style>
@@ -55,7 +65,7 @@
 
    /**
     * Primary entry point, fires when Ormma is ready.
-    * 
+    *
     * Sets up an error event handler and populates initial screen data
     *
     * @requires Ormma
@@ -75,9 +85,9 @@
    function expandAd() {
       var pos = ormma.getDefaultPosition();
 	  var size = ormma.getSize();
-	  ormma.expand( { x: pos.x, 
-	                  y: pos.y, 
-					  width: size.width, 
+	  ormma.expand( { x: pos.x,
+	                  y: pos.y,
+					  width: size.width,
 					  height : 250 } );
    }
 
@@ -88,7 +98,7 @@
    function handleErrorEvent( message, action ) {
       var msg = "ORMMA ERROR ";
 	  if ( action != null ) {
-	     // error caused by an action	
+	     // error caused by an action
 	     msg += "caused by action '" + action + "', ";
       }
       msg += "Message: " + message;
@@ -131,7 +141,7 @@
         var btn = document.controller.orientationButton;
 		btn.value = "Orientation: " + angle;
 	}
-	
+
    	/**
     * Handles network state changes.
     *
@@ -211,8 +221,8 @@
 	function sendSMS() {
 		ormma.sendSMS( "8005551212", "ORMMA" );
 	}
-   
-   
+
+
    /**
     * Causes the appropriate elements for the "default" state to be displayed.
 	*
@@ -224,8 +234,8 @@
       banner.style.display = 'block';
       expandedad.style.display = 'none';
    }
-   
-   
+
+
    /**
     * Causes the appropriate elements for the "expanded" state to be displayed.
 	*
@@ -251,7 +261,7 @@
 
     function toggleHeadingEnabled() {
        headingEnabled = !headingEnabled;
-   
+
        var lbl = "Heading: ";
        var btn = document.controller.headingButton;
        if ( headingEnabled ) {
@@ -268,7 +278,7 @@
 
     function toggleLocationEnabled() {
        locationEnabled = !locationEnabled;
-   
+
        var lbl = "Location: ";
        var btn = document.controller.locationButton;
        if ( locationEnabled ) {
@@ -291,7 +301,7 @@
 
     function toggleNetworkEnabled() {
        networkEnabled = !networkEnabled;
-   
+
        var lbl = "Network: ";
        var btn = document.controller.networkButton;
        if ( networkEnabled ) {
@@ -308,7 +318,7 @@
 
     function toggleOrientationEnabled() {
        orientationEnabled = !orientationEnabled;
-   
+
        var lbl = "Orientation: ";
        var btn = document.controller.orientationButton;
        if ( orientationEnabled ) {
@@ -325,7 +335,7 @@
 
     function toggleShakeEnabled() {
        shakeEnabled = !shakeEnabled;
-      
+
        var lbl = "Shake: ";
        var btn = document.controller.shakeButton;
        if ( shakeEnabled ) {
@@ -343,7 +353,7 @@
 
     function toggleTiltEnabled() {
        tiltEnabled = !tiltEnabled;
-   
+
        var lbl = "Tilt: ";
        var btn = document.controller.tiltButton;
        if ( tiltEnabled ) {
@@ -371,7 +381,7 @@
       </div>
    </div>
 
-   
+
    <!-- The expanded ad (expanded state) -->
    <div id='expandedad'>
       <img src="http://i.imwx.com/RealMedia/ads/Creatives/creative_repository/ormma/300x250-solid.png"
@@ -393,7 +403,7 @@
             <input type="button" name="shakeButton"       value="Shake: off"       onclick="toggleShakeEnabled();"><br>
             <input type="button" name="headingButton"     value="Heading: off"     onclick="toggleHeadingEnabled();"><br>
             <input type="button" name="locationButton"    value="Location: off"    onclick="toggleLocationEnabled();"><br>
-		</form> 
+		</form>
       </div>
    </div>
 </div>
