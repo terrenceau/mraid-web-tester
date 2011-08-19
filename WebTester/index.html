@@ -68,7 +68,7 @@
 
 <body>
 
-<form id="setup" name="setup" onsubmit="renderAd(this); return false">
+<form id="setup" name="setup" onsubmit="renderAd(); return false">
 <div id="tabs">
 
 	<div id="logo" onclick="location.href='http://ormma.org/'"></div>
@@ -181,7 +181,7 @@
                     <span class="value">
                         <input name="adURI" id="adURI" class="uri" value="ormma-test-ad-level-2.html">
                         <input name="fragment" type="checkbox" checked="checked"> Fragment?
-	                    <input type="submit" value="Render">
+	                    <input type="submit" value="Render" onclick="renderAd()">
                     </span>
                 </div>
 			</div>
@@ -211,7 +211,7 @@
             <div id="locationDiv" class="ormma-widget">
                 <div id="location-widget"><div id="location-target"></div></div>
                 <div id="locationTiming" type="button" onclick="locationWidget.toggleLocationTiming()" class="t-off"></div>
-                <p class="formValues"><span class="name">lat:</span><span class="value"><input name="lat" type="text" id="lat" size="6" maxlength="3" /></span><span class="name">lng:</span><span class="value"><input name="lng" type="text" id="lng" size="6" maxlength="3" /></span><span class="name">acc:</span><span class="value"><input name="accuracy" size="6" maxlength="3" value="6" /></span>
+                <p class="formValues"><span class="name">lat:</span><span class="value"><input name="lat" type="text" id="lat" size="6" /></span><span class="name">lng:</span><span class="value"><input name="lng" type="text" id="lng" size="6"  /></span><span class="name">acc:</span><span class="value"><input name="accuracy" size="6" maxlength="3" value="6" /></span>
                 </p>
             </div>
 
