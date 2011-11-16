@@ -486,7 +486,7 @@ INFO No ORMMAReady callback found (timeout of 10000ms occurred), assume use of r
 			for (var i=0; i<scriptsCount; i++){
 				var script = doc.createElement('script');
 				script.type = "text/javascript";
-				if (scripts[i].text === '') {
+				if (scripts[i].src !== '') {
 					script.src = scripts[i].src;
 				} else {
 					script.text = scripts[i].text;
