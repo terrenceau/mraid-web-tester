@@ -362,7 +362,8 @@ INFO No ORMMAReady callback found (timeout of 10000ms occurred), assume use of r
     ormmaview.render = function() {
         broadcastEvent('info', 'rendering');
         
-        if (!adFrame || !adWindow || !adWindow.document) {
+        if (!adFrame || !adWindow || !adWindow.document ||
+                !adFrame.contentWindow) {
             broadcastEvent('info', 'creating adWindow');
             adWindow = window.open('safari/device.html', 'adWindow', 'left=1000,width='+screenSize.width+',height='+screenSize.height+',menubar=no,location=no,toolbar=no,status=no,personalbar=no,resizable=no,scrollbars=no,chrome=no,all=no');
             adWindow.onload = function() {
