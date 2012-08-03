@@ -85,18 +85,34 @@
                     </span>
                 </li>
             </ul>
+            
+            <div id="placmentDiv">
+            	<p>Placement:</p>
+                <ul>
+                	<li><span class="name">Inline</span>
+                    	<span class="value">
+                        	<input name="placement" type="radio" value="inline" checked="checked"/>
+                        </span>
+                    </li>
+                	<li><span class="name">Interstitial</span>
+                    	<span class="value">
+                        	<input name="placement" type="radio" value="interstitial"/>
+                        </span>
+                    </li>
+                </ul>
+            </div>
 
             <div id="complianceDiv">
                 <p>API version to test:</p>
                 <ul>
                     <li><span class="name">MRAID v1:</span>
                         <span class="value">
-                            <input name="mraidv1" type="checkbox" checked="">
+                            <input name="version" value="1.0" type="radio">
                         </span>
                     </li>
                     <li><span class="name">MARID v2:</span>
                         <span class="value">
-                            <input name="mraidv2" type="checkbox" checked="">
+                            <input name="version" value="2.0" type="radio" checked="">
                         </span>
                     </li>
                 </ul>
@@ -142,7 +158,7 @@
 				<div>
                 	<span class="name">URL:</span>
                     <span class="value">
-                        <input name="adURI" id="adURI" class="uri" value="test-ad/mraid-test-ad-v2.html">
+                        <input name="adURI" id="adURI" class="uri" value="../test-ad/mraid-test-ad.html">
                         <input name="fragment" type="checkbox" checked="checked"> Fragment?
 	                    <input type="submit" value="Render" onclick="renderAd()">
                     </span>

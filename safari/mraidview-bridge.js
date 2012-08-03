@@ -7,77 +7,105 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-(function() {
-    var mraidview = window.mraidview = {};
-	mraidview.scriptFound = false;
-    
-    var listeners = {};
-    
-    var broadcastEvent = function() {
-        var args = new Array(arguments.length);
-        for (var i = 0; i < arguments.length; i++) args[i] = arguments[i];
-        var event = args.shift();
-        for (var key in listeners[event]) {
-            var handler = listeners[event][key];
-            handler.func.apply(handler.func.scope, args);
-        }
-    }
-    
+(function () {
+    var mraidview = window.mraidview = {},
+		listeners = {},
+		broadcastEvent = function () {
+			var i,
+				key,
+				event,
+				handler,
+				args = new Array(arguments.length);
+
+			for (i = 0; i < arguments.length; i++) {
+				args[i] = arguments[i];
+			}
+
+			event = args.shift();
+			for (key in listeners[event]) {
+				handler = listeners[event][key];
+				handler.func.apply(handler.func.scope, args);
+			}
+		};
+
 	mraidview.broadcastEvent = broadcastEvent;
-	
-    mraidview.addEventListener = function(event, listener, scope) {
-        var key = String(listener) + String(scope);
-        var map = listeners[event]
+	mraidview.scriptFound = false;
+
+    mraidview.addEventListener = function (event, listener, scope) {
+        var key = String(listener) + String(scope),
+			map = listeners[event];
+
         if (!map) {
             map = {};
             listeners[event] = map;
         }
-        map[key] = {scope:(scope?scope:{}),func:listener};
+        map[key] = {scope : (scope ? scope : {}), func : listener};
     };
-    
-    mraidview.removeEventListener = function(event, listener, scope) {
-        var key = String(listener) + String(scope);
-        var map = listeners[event];
+
+    mraidview.removeEventListener = function (event, listener, scope) {
+        var key = String(listener) + String(scope),
+			map = listeners[event];
+
         if (map) {
             map[key] = null;
             delete map[key];
         }
     };
-    
-    mraidview.pushChange = function(obj) {
+
+    mraidview.pushChange = function (obj) {
         broadcastEvent('change', obj);
     };
-    mraidview.pushError = function(message, action) {
+
+    mraidview.pushError = function (message, action) {
         broadcastEvent('error', message, action);
     };
-	mraidview.pushInfo = function(message) {
+
+	mraidview.pushInfo = function (message) {
 		broadcastEvent('info', message);
 	};
-    mraidview.activate = function(service) {
+
+    mraidview.activate = function (service) {
         broadcastEvent('activate', service);
     };
-    mraidview.deactivate = function(service) {
+
+    mraidview.deactivate = function (service) {
         broadcastEvent('deactivate', service);
     };
-    mraidview.expand = function(dimensions, URL) {
-        broadcastEvent('expand', dimensions, URL);
+
+    mraidview.expand = function (URL) {
+        broadcastEvent('expand', URL);
     };
-    mraidview.close = function() {
+
+    mraidview.close = function () {
         broadcastEvent('close');
     };
-    mraidview.hide = function() {
-        broadcastEvent('hide');
+
+    mraidview.open = function (URL) {
+        broadcastEvent('open', URL);
     };
-    mraidview.show = function() {
-        broadcastEvent('show');
+
+    mraidview.resize = function () {
+        broadcastEvent('resize');
     };
-    mraidview.open = function(URL, controls) {
-        broadcastEvent('open', URL, controls);
-    };
-    mraidview.resize = function(width, height) {
-        broadcastEvent('resize', width, height);
-    };
-    mraidview.setExpandProperties = function(properties) {
+
+    mraidview.setExpandProperties = function (properties) {
         broadcastEvent('setExpandProperties', properties);
     };
+
+    mraidview.setResizeProperties = function (properties) {
+        broadcastEvent('setResizeProperties', properties);
+    };
+
+	mraidview.storePicture = function (url) {
+		broadcastEvent('storePicture', url);
+	};
+
+	mraidview.playVideo = function (url) {
+		broadcastEvent('playVideo', url);
+	};
+
+	mraidview.createCalendarEvent = function (params) {
+		broadcastEvent('createCalendarEvent', params);
+	};
+
 })();
