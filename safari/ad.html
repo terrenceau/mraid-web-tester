@@ -2,7 +2,7 @@
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta></head>
 <!--
 /*
- *  Copyright (c) 2011 The ORMMA.org project authors. All Rights Reserved.
+ *  Copyright (c) 2012 The mraid-web-tester project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
  *  that can be found in the LICENSE file in the root of the source
@@ -12,16 +12,18 @@
 -->
 <body style="margin:0px; padding:0px;">
 <script type="text/javascript">
-var i = document.cookie.indexOf('uri=') + 4;
-var j = document.cookie.indexOf(';', i);
-var uri = '';
-if (j == -1) {
-    uri = document.cookie.substring(i);
+var i = document.cookie.indexOf('uri=') + 4,
+	j = document.cookie.indexOf(';', i),
+	uri = '',
+	req = new XMLHttpRequest();
+
+if (j === -1) {
+	uri = document.cookie.substring(i);
 } else {
-    uri = document.cookie.substring(i, j);
+	uri = document.cookie.substring(i, j);
 }
+
 uri = decodeURIComponent(uri);
-var req = new XMLHttpRequest();
 req.open('GET', uri, false);
 req.send(null);
 document.write(req.responseText);

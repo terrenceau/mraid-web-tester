@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2011 The ORMMA.org project authors. All Rights Reserved.
+ *  Copyright (c) 2012 The mraid-web-tester project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
  *  that can be found in the LICENSE file in the root of the source
@@ -15,37 +15,6 @@ html, body {
 #tabs, #tabs-1, #tabs-2, #tabs-3 {
 	height: 43px;
 }
-/*
-ul {
-    list-style-type:none;
-    line-height:25px;
-}
-
-li[class~=selector] {
-    height:72px;
-    width:565px;
-}
-
-li[class~=selector] ul {
-    line-height:15px;
-    height:72px;
-    width:565px;
-}
-
-li[class~=selector] li {
-    float:left;
-    width:175px;
-}
-
-span[class~=name] {
-    font-weight:bold;
-}
-
-span[class~=value] {
-    position:absolute;
-    left:150px;
-}
-*/
 
 input[class~=dimension] {
     width: 35px;
@@ -69,25 +38,21 @@ div[class~=consoleFrame] {
 }
 
 #devicePreviewDiv {
-	float:left;
+	float:right;
 }
 
 #complianceDiv {
-	float:left;
-	width:50%;
 }
 
 #capabilitiesDiv {
-	float:left;
-	width:50%;
 }
 
 #consoleDiv {
-	width:50%;
+	width:75%;
 	float: right;
 }
-#consoleDiv, #controlsDiv {
-	width:50%;
+#controlsDiv {
+	width:25%;
 	float: left;
 }
 
@@ -96,7 +61,7 @@ div[class~=consoleFrame] {
 }
 
 #title {
-	width:150px;
+	width:200px;
 	height:31px;
 	float:right;
 	margin:7px 5px 0px 0px;
@@ -104,11 +69,12 @@ div[class~=consoleFrame] {
 }
 
 #logo {
-	background-image:url(../img/ormma-logo.jpg);
-	width:153px;
+	background-image:url(http://src.sencha.io/153/31/http://www.iab.net/media/image/new-iab-logo.gif);
+	background-repeat:no-repeat;
+	width:100px;
 	height:31px;
 	float:right;
-	margin:7px 5px 0px 0px;
+	margin:1px 5px 0px 10px;
 }
 .formValues {
 	margin-top:-33px;
@@ -135,8 +101,4 @@ div[class~=consoleFrame] {
 
 .no-margin {
 	margin:0;
-}
-
-.ormma-widget {
-	margin-right:5px;
 }
