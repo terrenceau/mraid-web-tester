@@ -9,75 +9,44 @@
 
 (function() {
     var mraid = window.mraid = {};
-	var mraid = window.mraid = {};
-    
+	    
     // CONSTANTS ///////////////////////////////////////////////////////////////
     
+	var VERSIONS = mraid.VERSIONS = {
+		V1  : '1.0',
+		V2  : '2.0'
+	};
+	
     var STATES = mraid.STATES = {
         UNKNOWN     :'unknown',
+
 		LOADING		:'loading',
         DEFAULT     :'default',
         RESIZED     :'resized',
         EXPANDED    :'expanded',
         HIDDEN      :'hidden'
     };
-	mraid.STATES = {
-		LOADING		:'loading',
-        DEFAULT     :'default',
-        EXPANDED    :'expanded',
-        HIDDEN      :'hidden'	
-	};
-    
+	
     var EVENTS = mraid.EVENTS = {
-		READY				:'ready',
-        ERROR               :'error',
         INFO                :'info',
-        HEADINGCHANGE       :'headingChange',
-        KEYBOARDCHANGE      :'keyboardChange',
-        LOCATIONCHANGE      :'locationChange',
-        NETWORKCHANGE       :'networkChange',
         ORIENTATIONCHANGE   :'orientationChange',
-        RESPONSE            :'response',
-        SCREENCHANGE        :'screenChange',
-        SHAKE               :'shake',
-        SIZECHANGE          :'sizeChange',
-        STATECHANGE         :'stateChange',
-        TILTCHANGE          :'tiltChange',
- 		VIEWABLECHANGE		:'viewableChange'
-    };
-	mraid.EVENTS = {
+		
 		READY				:'ready',
         ERROR               :'error',
-        INFO                :'info',
         STATECHANGE         :'stateChange',
- 		VIEWABLECHANGE		:'viewableChange'
-	};
+ 		VIEWABLECHANGE		:'viewableChange',
+		CALENDAREVENTADDED  :'calendarEventAdded',
+		PICTUREADDED        :'pictureAdded',
+        SIZECHANGE          :'sizeChange',
+    };
     
     var FEATURES = mraid.FEATURES = {
-        LEVEL1      :'level-1',
-        LEVEL2      :'level-2',
-        SCREEN      :'screen',
-        ORIENTATION :'orientation',
-        HEADING     :'heading',
-        LOCATION    :'location',
-        SHAKE       :'shake',
-        TILT        :'tilt',
-        NETWORK     :'network',
         SMS         :'sms',
         PHONE       :'phone',
         EMAIL       :'email',
         CALENDAR    :'calendar',
-        CAMERA      :'camera',
-		MAP			:'map',
-		AUDIO		:'audio',
-		VIDEO		:'video'
-    };
-    
-    var NETWORK = mraid.NETWORK = {
-        OFFLINE :'offline',
-        WIFI    :'wifi',
-        CELL    :'cell',
-        UNKNOWN :'unknown'
+        STOREPICTURE:'storePicture',
+		INLINEVIDEO	:'inlineVideo'
     };
     
     // PRIVATE PROPERTIES (sdk controlled) //////////////////////////////////////////////////////
@@ -112,49 +81,22 @@
     };
     
     var supports = {
-        'level-1':true,
-        'level-2':true,
-        'screen':true,
-        'orientation':true,
-        'heading':true,
-        'location':true,
-        'shake':true,
-        'tilt':true,
-        'network':true,
         'sms':true,
         'phone':true,
         'email':true,
         'calendar':true,
-        'camera':true,
-		'map':true,
-		'audio':true,
-		'video':true
+        'storePicture':true,
+		'inlineVideo':true,
+        'orientation':true
     };
     
-    var heading = -1;
-    
-    var keyboardState = false;
-    
-    var location = null;
-    
-    var network = NETWORK.UNKNOWN;
-    
     var orientation = -1;
-    
+    var mraidVersion = 'unknown';
     var screenSize = null;
-    
-    var shakeProperties = null;
-    
-    var tilt = null;
-    
-    var assets = {};
-    
-    var cacheRemaining = -1;
     
     // PRIVATE PROPERTIES (internal) //////////////////////////////////////////////////////
     
     var intervalID = null;
-    var timeoutID = null;
 	var readyInterval = 750;
     
 	//@TODO: don't think I need dimension validators anymore
@@ -182,12 +124,10 @@
 		height:function(value) { return !isNaN(value) && value >= 0; }	
     };
     
-    var shakePropertyValidators = {
-        intensity:function(value) { return !isNaN(value); },
-        interval:function(value) { return !isNaN(value); }
-    };
-    
     var changeHandlers = {
+		version:function(val) {
+			mraidVersion = val;
+		},
         state:function(val) {
             if (state == STATES.UNKNOWN && val != STATES.UNKNOWN) {
                 broadcastEvent(EVENTS.INFO, 'controller initialized');
@@ -227,26 +167,6 @@
                 supports[FEATURES[key]] = contains(FEATURES[key], val);
             }
         },
-        heading:function(val) {
-            broadcastEvent(EVENTS.INFO, 'setting heading to ' + stringify(val));
-            heading = val;
-            broadcastEvent(EVENTS.HEADINGCHANGE, heading);
-        },
-        keyboardState:function(val) {
-            broadcastEvent(EVENTS.INFO, 'setting keyboardState to ' + stringify(val));
-            keyboardState = val;
-            broadcastEvent(EVENTS.KEYBOARDCHANGE, keyboardState);
-        },
-        location:function(val) {
-            broadcastEvent(EVENTS.INFO, 'setting location to ' + stringify(val));
-            location = val;
-            broadcastEvent(EVENTS.LOCATIONCHANGE, location.lat, location.lon, location.acc);
-        },
-        network:function(val) {
-            broadcastEvent(EVENTS.INFO, 'setting network to ' + stringify(val));
-            network = val;
-            broadcastEvent(EVENTS.NETWORKCHANGE, (network != NETWORK.OFFLINE && network != NETWORK.UNKNOWN), network);
-        },
         orientation:function(val) {
             broadcastEvent(EVENTS.INFO, 'setting orientation to ' + stringify(val));
             orientation = val;
@@ -256,15 +176,6 @@
             broadcastEvent(EVENTS.INFO, 'setting screenSize to ' + stringify(val));
             screenSize = val;
             broadcastEvent(EVENTS.SCREENCHANGE, screenSize.width, screenSize.height);
-        },
-        shakeProperties:function(val) {
-            broadcastEvent(EVENTS.INFO, 'setting shakeProperties to ' + stringify(val));
-            shakeProperties = val;
-        },
-        tilt:function(val) {
-            broadcastEvent(EVENTS.INFO, 'setting tilt to ' + stringify(val));
-            tilt = val;
-            broadcastEvent(EVENTS.TILTCHANGE, tilt.x, tilt.y, tilt.z);
         }
     };
     
@@ -319,16 +230,8 @@
         }
     });
     
-    mraidview.addEventListener('shake', function() {
-        broadcastEvent(EVENTS.SHAKE);
-    });
-    
     mraidview.addEventListener('error', function(message, action) {
         broadcastEvent(EVENTS.ERROR, message, action);
-    });
-    
-    mraidview.addEventListener('response', function(uri, response) {
-        broadcastEvent(EVENTS.RESPONSE, uri, response);
     });
     
     var clone = function(obj) {
@@ -395,7 +298,7 @@
         if (listeners[event]) listeners[event].broadcast(args);
     }
     
-    // LEVEL 1 ////////////////////////////////////////////////////////////////////
+    // VERSION 1 ////////////////////////////////////////////////////////////////////
     
     mraid.signalReady = function() {
 		broadcastEvent(EVENTS.INFO, 'setting state to ' + stringify(STATES.DEFAULT));
@@ -413,7 +316,7 @@
     };
     
 	mraid.getVersion = function() {
-		return ('1.0');
+		return (mraidVersion);
 	};
 	    
     mraid.info = function(message) {
@@ -469,10 +372,6 @@
         return state;
     };
     
-	mraid.getVersion = function() {
-		return ("1.1.0");
-	};
-	
     mraid.hide = function() {
         if (state == STATES.HIDDEN) {
             broadcastEvent(EVENTS.ERROR, 'Ad is currently hidden.', 'hide');
