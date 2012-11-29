@@ -13,7 +13,7 @@
   * (0) prepareMraidView initializes version and "supports" properties
 INFO MRAID version 2.0
 INFO placement type inline
-INFO [sms,phone,email,calendar,storePicture,inlineVideo]  
+INFO [sms,tel,calendar,storePicture,inlineVideo]  
   * (1) buttons on interface call renderAd()  - Flight tab>ad fragment or renderHtmlAd - Flight tab>ad url
 INFO rendering
 INFO creating adWindow
@@ -88,8 +88,7 @@ INFO mraid.js identification script found
     
     var FEATURES = mraidview.FEATURES = {
         SMS         :'sms',
-        PHONE       :'phone',
-        EMAIL       :'email',
+        TEL         :'tel',
         CALENDAR    :'calendar',
         STOREPICTURE:'storePicture',
 		INLINEVIDEO	:'inlineVideo'
@@ -158,6 +157,7 @@ INFO mraid.js identification script found
 		currentPosition = { width:0, height:0, y:0, x:0 },
         maxSize = { width:0, height:0 },
         expandProperties = { width:0, height:0, useCustomClose:false, isModal:false, allowOrientationChange:true, forceOrientation:'none'},
+		resizeProperties = { width:0, height:0, customClosePosition:'top-right', offsetX:0, offsetY:0, allowOffscreen:true},
         supports = [],
 		version = VERSIONS.UNKNOWN,
 		placmenent = PLACEMENTS.UNKNOWN,
@@ -319,6 +319,7 @@ INFO mraid.js identification script found
         previousState = null;
         state = STATES.DEFAULT;
         expandProperties = { width:0, height:0, useCustomClose:false, isModal:false, allowOrientationChange:true, forceOrientation:'none'};
+		resizeProperties = { width:0, height:0, customClosePosition:'top-right', offsetX:0, offsetY:0, allowOffscreen:true};
         orientation = (screenSize.width >= screenSize.height)?90:0;
 		version = VERSIONS.UNKNOWN;
 		placmenent = PLACEMENTS.UNKNOWN;
@@ -489,19 +490,26 @@ INFO mraid.js identification script found
 			}
 		}, this);
         
-        bridge.addEventListener('resize', function(width, height) {
+        bridge.addEventListener('resize', function() {
             previousPosition = { x:parseInt(adFrame.style.left), y:parseInt(adFrame.style.top), width:parseInt(adFrame.style.width), height:parseInt(adFrame.style.height) };
             previousState = state;
-            size = { width:width, height:height };
+			
+            size = { width:resizeProperties.width, height:resizeProperties.height };
             state = STATES.RESIZED;
-            resizeAd({ x:parseInt(adFrame.style.left), y:parseInt(adFrame.style.top), width:width, height:height });
+			//@todo: partial implementation
+            resizeAd({ x:parseInt(adFrame.style.left) + resizeProperties.offsetX, y:parseInt(adFrame.style.top) + resizeProperties.offsetY, width:width, height:height });
             adBridge.pushChange({ state:state, size:size });
-			adBridge.pushChange({ currentPosition:{ x:parseInt(adFrame.style.left), y:parseInt(adFrame.style.top), width:parseInt(adFrame.style.width), height:parseInt(adFrame.style.height) }});
+			adBridge.pushChange({ currentPosition:{ x:parseInt(adFrame.style.left) + resizeProperties.offsetX, y:parseInt(adFrame.style.top) + resizeProperties.offsetY, width:parseInt(adFrame.style.width), height:parseInt(adFrame.style.height) }});
         }, this);
         
         bridge.addEventListener('setExpandProperties', function(properties) {
             broadcastEvent(EVENTS.INFO, 'setting expand properties to ' + stringify(properties));
 			adBridge.pushChange({'expandProperties':properties});
+        }, this);
+        
+        bridge.addEventListener('setResizeProperties', function(properties) {
+            broadcastEvent(EVENTS.INFO, 'setting resize properties to ' + stringify(properties));
+			adBridge.pushChange({'resizeProperties':properties});
         }, this);
         
         bridge.addEventListener('createCalendarEvent', function(params) {
@@ -529,14 +537,16 @@ INFO mraid.js identification script found
             defaultPosition:defaultPosition,
             maxSize:maxSize,
             expandProperties:expandProperties,
+			resizeProperties:resizeProperties,
             supports:supports,
 			version:mraidview.version,
 			placement:mraidview.placement,
 			currentPosition:defaultPosition,
 			isViewable:true
         };
-        bridge.pushChange(initProps);
 		bridge.pushChange({ state:state });
+		bridge.pushChange({version:mraidview.version});
+        bridge.pushChange(initProps);
     };
     
     var initAdFrame = function() {

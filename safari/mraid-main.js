@@ -63,8 +63,7 @@
     
     var FEATURES = mraid.FEATURES = {
         SMS         :'sms',
-        PHONE       :'phone',
-        EMAIL       :'email',
+        TEL         :'tel',
         CALENDAR    :'calendar',
         STOREPICTURE:'storePicture',
 		INLINEVIDEO	:'inlineVideo'
@@ -120,7 +119,7 @@
     
     var supports = {
         'sms':true,
-        'phone':true,
+        'tel':true,
         'email':true,
         'calendar':true,
         'storePicture':true,
@@ -161,10 +160,10 @@
 	var resizePropertyValidators = {
 		width:function(value) { return !isNaN(value) && value >= 0; }, 
 		height:function(value) { return !isNaN(value) && value >= 0; },	
-		offsetX:function(value) { return !isNaN(value) && value >= 0; }, 
-		offsetY:function(value) { return !isNaN(value) && value >= 0; },	
+		offsetX:function(value) { return !isNaN(value); }, 
+		offsetY:function(value) { return !isNaN(value); },	
         allowOffscreen:function(value) { return (value === true || value === false); },
-        customClosePosition:function(value) { return (value in CLOSEPOSITIONS); } //@TODO
+        customClosePosition:function(value) { for (a in CLOSEPOSITIONS) if (value === CLOSEPOSITIONS[a]) return(true); return(false); }
 	}
     
     var changeHandlers = {
@@ -397,8 +396,8 @@
         if (!event) {
             broadcastEvent(EVENTS.ERROR, 'Must specify an event.', 'removeEventListener');
         } else {
-            if (listener && (!listeners[event] || !listeners[event].remove(listener))) {
-                broadcastEvent(EVENTS.ERROR, 'Listener not currently registered for event', 'removeEventListener');
+            if (!listener || (typeof(listeners[event]) === 'undefined' || !listeners[event].remove(listener))) {
+                broadcastEvent(EVENTS.ERROR, 'Listener not currently registered for event: ' + event, 'removeEventListener');
                 return;
             } else {
                 listeners[event].removeAll();
@@ -474,27 +473,20 @@
 		/* @TODO */
 	}
     
-    mraid.resize = function(width, height) {
+    mraid.resize = function() {
 	/* introduced in MRAIDv2 */
 	    if (parseFloat(mraidVersion, 10) < 2) {
-			broadcastEvent(EVENTS.ERROR, 'Method not supported by this verion.', 'resize');
+			broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (resize)', 'resize');
 	    } else {
-			if (width == null || height == null || isNaN(width) || isNaN(height) || width < 0 || height < 0) {
-				broadcastEvent(EVENTS.ERROR, 'Requested size must be numeric values between 0 and maxSize.', 'resize');
-			} else if (width > maxSize.width || height > maxSize.height) {
-				broadcastEvent(EVENTS.ERROR, 'Request (' + width + ' x ' + height + ') exceeds maximum allowable size of (' + maxSize.width +  ' x ' + maxSize.height + ')', 'resize');
-			} else if (width == size.width && height == size.height) {
-				broadcastEvent(EVENTS.ERROR, 'Requested size equals current size.', 'resize');
-			} else {
-				mraidview.resize(width, height);
-			}
+			//@tood: partial implementation
+			mraidview.resize();
 		}
     };
     
     mraid.getResizeProperties = function() {
 	/* introduced in MRAIDv2 */
 	    if (parseFloat(mraidVersion, 10) < 2) {
-			broadcastEvent(EVENTS.ERROR, 'Method not supported by this verion.', 'getResizeProperties');
+			broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (getResizeProperties)', 'getResizeProperties');
 	    } else {
 	        return clone(resizeProperties);
 		}
@@ -504,7 +496,7 @@
     mraid.setResizeProperties = function(properties) {
 	/* introduced in MRAIDv2 */
 	    if (parseFloat(mraidVersion, 10) < 2) {
-			broadcastEvent(EVENTS.ERROR, 'Method not supported by this verion.', 'setResizeProperties');
+			broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (setResizeProperties)', 'setResizeProperties');
 	    } else {
 			if (valid(properties, resizePropertyValidators, 'setResizeProperties')) {
 				mraidview.setResizeProperties(properties);
@@ -515,7 +507,7 @@
     mraid.getCurrentPosition = function() {
 	/* introduced in MRAIDv2 */
 	    if (parseFloat(mraidVersion, 10) < 2) {
-			broadcastEvent(EVENTS.ERROR, 'Method not supported by this verion.', 'getCurrentPosition');
+			broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (getCurrentPosition)', 'getCurrentPosition');
 	    } else {
 	        return clone(currentPosition);
 		}
@@ -531,7 +523,7 @@
     mraid.getMaxSize = function(bOverride) {
 	/* introduced in MRAIDv2, bOverride is an mraid-web-tester extension */
 	    if (!bOverride && parseFloat(mraidVersion, 10) < 2) {
-			broadcastEvent(EVENTS.ERROR, 'Method not supported by this verion.', 'getMaxSize');
+			broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (getMaxSize)', 'getMaxSize');
 	    } else {
 	        return clone(maxSize);
 		}
@@ -541,7 +533,7 @@
     mraid.getDefaultPosition = function() {
 	/* introduced in MRAIDv2 */
 	    if (parseFloat(mraidVersion, 10) < 2) {
-			broadcastEvent(EVENTS.ERROR, 'Method not supported by this verion.', 'getDefaultPosition');
+			broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (getDefaultPosition)', 'getDefaultPosition');
 	    } else {
 	        return clone(defaultPosition);
 		}
@@ -550,8 +542,8 @@
     
     mraid.getScreenSize = function() {
 	/* introduced in MRAIDv2 */
-	    if (parseFloat(mraidVersion, 10) < 2) {
-			broadcastEvent(EVENTS.ERROR, 'Method not supported by this verion.', 'getScreenSize');
+	    if (parseFloat(mraidVersion, 10) < 2) { 
+			broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (getScreenSize)', 'getScreenSize');
 	    } else {
 	        return clone(screenSize);
 		}
@@ -562,7 +554,7 @@
 	/* introduced in MRAIDv2 */
 		var bSupports = false;
 	    if (parseFloat(mraidVersion, 10) < 2) {
-			broadcastEvent(EVENTS.ERROR, 'Method not supported by this verion.', 'supports');
+			broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (supports)', 'supports');
 	    } else {
 				bSupports = supports[feature];
 	    }
@@ -572,12 +564,12 @@
 	mraid.storePicture = function(url) {
 	/* introduced in MRAIDv2 */
 	    if (parseFloat(mraidVersion, 10) < 2) {
-			broadcastEvent(EVENTS.ERROR, 'Method not supported by this verion.', 'storePicture');
+			broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (storePicture)', 'storePicture');
 	    } else {
 			if (!supports[FEATURES.STOREPICTURE]) {
-				broadcastEvent(EVENTS.ERROR, 'Method not supported by this client.', 'storePicture');
+				broadcastEvent(EVENTS.ERROR, 'Method not supported by this client. (storePicture)', 'storePicture');
 			} else if (!url || typeof url !== 'string') {
-				broadcastEvent(EVENTS.ERROR, 'Valid url required.', 'storePicture');
+				broadcastEvent(EVENTS.ERROR, 'Valid url required. (storePicture)', 'storePicture');
 			} else {
 				mraidview.storePicture(url);
 			}
@@ -587,10 +579,10 @@
     mraid.createCalendarEvent = function(params) {
 	/* introduced in MRAIDv2 */
 	    if (parseFloat(mraidVersion, 10) < 2) {
-			broadcastEvent(EVENTS.ERROR, 'Method not supported by this verion.', 'createCalendarEvent');
+			broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (createCalendarEvent)', 'createCalendarEvent');
 	    } else {
 			if (!supports[FEATURES.CALENDAR]) {
-				broadcastEvent(EVENTS.ERROR, 'Method not supported by this client.', 'createCalendarEvent');
+				broadcastEvent(EVENTS.ERROR, 'Method not supported by this client. (createCalendarEvent)', 'createCalendarEvent');
 			} else if (!params || typeof params != 'object') {
 				broadcastEvent(EVENTS.ERROR, 'Valid params required.', 'createCalendarEvent');
 			} else {
@@ -602,10 +594,10 @@
 	mraid.playVideo = function(url) {
 	/* introduced in MRAIDv2 */
 	    if (parseFloat(mraidVersion, 10) < 2) {
-			broadcastEvent(EVENTS.ERROR, 'Method not supported by this verion.', 'playVideo');
+			broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (playVideo)', 'playVideo');
 	    } else {
 			if (supports[FEATURES.INLINEVIDEO]) {
-				broadcastEvent(EVENTS.INFO, 'Inline video is available. playVideo will use native player.');
+				broadcastEvent(EVENTS.INFO, 'Inline video is available but playVideo uses native player.');
 			} 
 			if (!url || typeof url != 'string') {
 				broadcastEvent(EVENTS.ERROR, 'Valid url required.', 'playVideo');
@@ -618,7 +610,7 @@
     mraid.getOrientation = function() {
 	/* not in MRAID - unique to mraid-web-tester */
         if (!supports[FEATURES.ORIENTATION]) {
-            broadcastEvent(EVENTS.ERROR, 'Method not supported by this client.', 'getOrientation');
+            broadcastEvent(EVENTS.ERROR, 'Method not supported by this client. (getOrientation)', 'getOrientation');
         }
         return orientation;
     };
