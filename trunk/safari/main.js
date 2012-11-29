@@ -43,12 +43,11 @@ function formatInfoTime(d) {
 
 // SETUP FORM ///////////////////////////////////////////////////////////////
 var features = {
-    sms: { name: 'SMS' },
-    phone: { name: 'Phone' },
-    email: { name: 'Email' },
-    calendar: { name: 'Calendar' },
-    storePicture: { name: 'Store picture' },
-	inlineVideo: {name: 'Inline video' }
+    sms: { name: 'sms' },
+    tel: { name: 'tel' },
+    calendar: { name: 'calendar' },
+    storePicture: { name: 'storePicture' },
+	inlineVideo: {name: 'inlineVideo' }
 };
 
 function contains(array, item) {
