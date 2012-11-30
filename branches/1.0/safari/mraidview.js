@@ -473,7 +473,7 @@ INFO mraid.js identification script found
         
         bridge.addEventListener('open', function(URL) {
             broadcastEvent(EVENTS.INFO, 'opening ' + URL);
-            alert('Open in new page\nURL:'+URL);
+            window.open(URL, '_blank', 'left=1000,width='+screenSize.width+',height='+screenSize.height+',menubar=no,location=no,toolbar=no,status=no,personalbar=no,resizable=no,scrollbars=no,chrome=no,all=no');
         }, this);
 		
 		bridge.addEventListener('playVideo', function(URL) {
