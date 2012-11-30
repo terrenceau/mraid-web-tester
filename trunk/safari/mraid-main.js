@@ -209,6 +209,12 @@
                 expandProperties[i] = val[i];
             }
         },
+		resizeProperties:function(val) {
+			broadcastEvent(EVENTS.INFO, 'merging resizeProperties with ' + stringify(val));
+			for (var i in val) {
+				resizeProperties[i] = val[i];
+			}
+		},
         supports:function(val) {
             broadcastEvent(EVENTS.INFO, 'setting supports to ' + stringify(val));
             supports = {};
@@ -280,6 +286,7 @@
     mraidview.addEventListener('change', function(properties) {
         for (var property in properties) {
             var handler = changeHandlers[property];
+console.log('for property "' + property + '" typeof handler is: ' + typeof(handler));			
             handler(properties[property]);
         }
     });
