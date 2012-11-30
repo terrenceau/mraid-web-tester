@@ -544,9 +544,9 @@ INFO mraid.js identification script found
 			currentPosition:defaultPosition,
 			isViewable:true
         };
-		bridge.pushChange({ state:state });
 		bridge.pushChange({version:mraidview.version});
         bridge.pushChange(initProps);
+		bridge.pushChange({ state:state });
     };
     
     var initAdFrame = function() {
