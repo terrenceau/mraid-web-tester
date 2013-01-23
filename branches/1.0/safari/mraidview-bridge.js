@@ -9,7 +9,7 @@
 
 (function () {
     var mraidview = window.mraidview = {},
-		listeners = {},
+		listeners = {};
 		broadcastEvent = function () {
 			var i,
 				key,
@@ -53,6 +53,7 @@
     };
 
     mraidview.pushChange = function (obj) {
+    	console.warn(obj);
         broadcastEvent('change', obj);
     };
 
@@ -107,5 +108,9 @@
 	mraidview.createCalendarEvent = function (params) {
 		broadcastEvent('createCalendarEvent', params);
 	};
+	
+	mraidview.useCustomClose = function (useCustomCloseIndicator) {
+		broadcastEvent('useCustomClose', useCustomCloseIndicator);
+	}
 
 })();
