@@ -27,15 +27,18 @@
       position:absolute;
       left:0px;
       top:0px;
-      clip:rect( 0, 300, 250, 0 );
       display:none;
+      height:100%;
+      width:100%;
+      background-color: rgba(255,255,255,0.5);
    }
 
    #expanddata {
       position:absolute;
-      left:15px;
-      top:15px;
-      color:green;
+      left:2px;
+      top:20%;
+      background: white;
+      box-shadow: 1px 1px 4px rgba(0,0,0,.7);
    }
 
    #data {
@@ -66,10 +69,12 @@
 		position:absolute;
 		left:0px;
 		top:0px;
+		height:100%;
+		width: 100%;
 		}
 	#buttonTable {
-		position:absolute;
-		top: 4px;
+		/*position:absolute;
+		top: 4px;*/
 	}
 </style>
 
@@ -117,7 +122,7 @@
     */
 	function expandAd() {
 		console.log('expandAd');
-		mraid.useCustomClose(true);
+		/*mraid.useCustomClose(true);*/
 		mraid.expand();
 	}
 
@@ -193,7 +198,7 @@
 	* @requires: mraid
 	*/
    function showExpanded() {
-	   console.log('showExpanded');
+	   console.log('show Expanded');
       var banner = document.getElementById( 'banner' );
       var expandedad = document.getElementById( 'expandedad' );
       banner.style.display = 'none';
@@ -282,7 +287,6 @@
    
    function closeBanner() {
 	   console.log('closeBanner');
-	   
 	   mraid.close();
    }
 
@@ -297,7 +301,7 @@
       <div id='expand'>
          <img src="../test-ad/expand.png"
               alt="expand"
-              onclick="showExpanded();expandAd();" />
+              onclick="expandAd();" />
       </div>
       <div id='close'>
          <img src="../test-ad/shrink.png"
@@ -309,16 +313,16 @@
 
    <!-- The expanded ad (expanded state) -->
    <div id='expandedad'>
-      <img src="../test-ad/300x250-solid.png"
-           alt="expanded ad" />
+      <!-- <img src="../test-ad/300x250-solid.png"
+           alt="expanded ad" /> -->
       <div id='shrink'>
          <img src="../test-ad/shrink.png"
               alt="close"
-              onclick="showDefault();mraid.close();" />
+              onclick="mraid.close();" />
       </div>
       <div id='expanddata'>
          <form name="controller">
-         	<table border="1" id="buttonTable">
+         	<table border="0" id="buttonTable">
             <tr>
             <td valign="top">
             <input type="button" name="placementButton" 		value="getPlacementType" 	onclick="getPlacementType();"><br>
