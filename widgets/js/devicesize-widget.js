@@ -37,6 +37,11 @@ devicesizeWidget = {
 	
 	updatePositionFromMaxDrag : function (evt, ui) {
 		devicesizeWidget.updatePositionFromMinDrag(evt,ui);
+		
+		var top = parseInt($("#resizable-maxAdSize").css("top")),
+			left = parseInt($("#resizable-maxAdSize").css("left"));
+		$("#adMaxTop").val(top);
+		$("#adMaxLeft").val(left);
 	},
 	
 	updateMinFromDrag : function (evt, ui) {
@@ -47,8 +52,8 @@ devicesizeWidget = {
 	},
 	
 	updatePositionFromMinDrag : function (evt, ui) {
-		var top = parseInt($("#resizable-initialAdSize").css("top")) + parseInt($("#resizable-maxAdSize").css("top")),
-			left = parseInt($("#resizable-initialAdSize").css("left")) + parseInt($("#resizable-maxAdSize").css("left"));
+		var top = parseInt($("#resizable-initialAdSize").css("top")), // + parseInt($("#resizable-maxAdSize").css("top")),
+			left = parseInt($("#resizable-initialAdSize").css("left")); // + parseInt($("#resizable-maxAdSize").css("left"));
 		$("#adTop").val(top);
 		$("#adLeft").val(left);
 	},
@@ -61,7 +66,9 @@ devicesizeWidget = {
 			adWidth = parseInt($("#adWidth").val()),
 			adHeight = parseInt($("#adHeight").val()),
 			adTop = parseInt($("#adTop").val()),
-			adLeft = parseInt($("#adLeft").val());
+			adLeft = parseInt($("#adLeft").val()),
+			adMaxTop = parseInt($("#adMaxTop").val()),
+			adMaxLeft = parseInt($("#adMaxLeft").val());
 			
 		$("#resizable-screensize").css("width", screenWidth);
 		$("#resizable-screensize").css("height", screenHeight);
@@ -69,10 +76,10 @@ devicesizeWidget = {
 		$("#resizable-maxAdSize").css("height", adMaxHeight - 2);
 		$("#resizable-initialAdSize").css("width", adWidth - 4);
 		$("#resizable-initialAdSize").css("height", adHeight - 4);
-		$("#resizable-maxAdSize").css("top", adTop);
-		$("#resizable-maxAdSize").css("left", adLeft);
-		$("#resizable-initialAdSize").css("top", 0);
-		$("#resizable-initialAdSize").css("left", 0);
+		$("#resizable-initialAdSize").css("top", adTop);
+		$("#resizable-initialAdSize").css("left", adLeft);
+		$("#resizable-maxAdSize").css("top", adMaxTop);
+		$("#resizable-maxAdSize").css("left", adMaxLeft);
 	}
 
 };

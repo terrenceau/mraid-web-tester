@@ -35,6 +35,7 @@
 
 	<!-- INITIALIZATION -->
     <script type="text/javascript" defer="defer" >
+    console.error = function(msg) {alert(msg)};
 		$(document).ready(function(){
 			$('#tabs').tabs();
 			$("#accordion").accordion({ header: "h3", autoHeight:false });
@@ -84,6 +85,11 @@
                         <input id="adLeft" name="adLeft" class="dimension" value="0" onchange="devicesizeWidget.updatePreview()">,<input id="adTop" name="adTop" class="dimension" value="0" onchange="devicesizeWidget.updatePreview()">
                     </span>
                 </li>
+                <li><span class="name">Maximum ad area position (top, left):</span>
+                    <span class="value">
+                        <input id="adMaxLeft" name="adMaxLeft" class="dimension" value="0" onchange="devicesizeWidget.updatePreview()">,<input id="adMaxTop" name="adMaxTop" class="dimension" value="0" onchange="devicesizeWidget.updatePreview()">
+                    </span>
+                </li>
             </ul>
             
             <div id="placmentDiv">
@@ -97,6 +103,11 @@
                 	<li><span class="name">Interstitial</span>
                     	<span class="value">
                         	<input name="placement" type="radio" value="interstitial"/>
+                        </span>
+                    </li>
+                    <li><span class="name">Off-screen</span>
+                    	<span class="value">
+                        	<input name="offscreen" type="checkbox"/>
                         </span>
                     </li>
                 </ul>
@@ -158,9 +169,9 @@
 				<div>
                 	<span class="name">URL:</span>
                     <span class="value">
-                        <input name="adURI" id="adURI" class="uri" value="../test-ad/mraid-test-ad.html">
+                        <input name="adURI" id="adURI" class="uri" value="../test-ad/mraid-test-ad-two-part.html"> <!--../test-ad/resize.html*/-->
                         <input name="fragment" type="checkbox" checked="checked"> Fragment?
-	                    <input type="submit" value="Render" onclick="renderAd()">
+	                    <input type="submit" value="Render">
                     </span>
                 </div>
 			</div>

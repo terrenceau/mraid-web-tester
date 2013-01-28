@@ -35,8 +35,10 @@
 	var CLOSEPOSITIONS = mraid.CLOSEPOSITIONS = {
 		TOPLEFT     : 'top-left',
 		TOPRIGHT    : 'top-right',
+		TOPCENTER 	: 'top-center',
 		BOTTOMLEFT  : 'bottom-left',
 		BOTTOMRIGHT : 'bottom-right',
+		BOTTOMCENTER: 'bottom-center',
 		CENTER      : 'center'
 	}
 	
@@ -103,9 +105,7 @@
 		width:0,
 		height:0,
 		useCustomClose:false,
-		isModal:true,
-		allowOrientationChange: true,
-		forceOrientation: ORIENTATIONS.NONE
+		isModal:true
     };
 	
 	var resizeProperties = {
@@ -116,6 +116,11 @@
 		offsetY: 0,
 		allowOffscreen: true
 	};
+	
+	var orientationProperties = {
+		allowOrientationChange: true,
+		forceOrientation: ORIENTATIONS.NONE
+	}
     
     var supports = {
         'sms':true,
@@ -154,7 +159,7 @@
 		width:function(value) { return !isNaN(value) && value >= 0; }, 
 		height:function(value) { return !isNaN(value) && value >= 0; },	
         allowOrientationChange:function(value) { return (value === true || value === false); },
-        forceOrientation:function(value) { return (value in ORIENTATIONS); } //@TODO
+        forceOrientation:function(value) { return (value in ORIENTATIONS); } 
     };
     
 	var resizePropertyValidators = {
@@ -164,6 +169,11 @@
 		offsetY:function(value) { return !isNaN(value); },	
         allowOffscreen:function(value) { return (value === true || value === false); },
         customClosePosition:function(value) { for (a in CLOSEPOSITIONS) if (value === CLOSEPOSITIONS[a]) return(true); return(false); }
+	}
+	
+	var orientationPropertyValidators = {
+		allowOrientationChange:function(value) { return typeof('false')==='boolean' }, 
+        forceOrientation:function(value) { for (a in ORIENTATIONS) if (value === ORIENTATIONS[a]) return(true); return(false); }
 	}
     
     var changeHandlers = {
@@ -236,6 +246,12 @@
 			broadcastEvent(EVENTS.INFO, 'setting isViewable to ' + stringify(val));
 			isViewable = val;
 			broadcastEvent(EVENTS.VIEWABLECHANGE, isViewable);
+		},
+		orientationProperties:function(val) {
+			broadcastEvent(EVENTS.INFO, 'setting orientationProperties to ' + stringify(val));
+			for (var i in val) {
+				orientationProperties[i] = val[i];
+			}
 		}
     };
     
@@ -426,7 +442,6 @@ console.log('for property "' + property + '" typeof handler is: ' + typeof(handl
         return placementType;
     };
 	
-	/* @TODO: simulate load off screen and change isViewable */
 	mraid.isViewable = function() {
 	/* introduced in MRAIDv1 */
 		return isViewable;
@@ -441,9 +456,15 @@ console.log('for property "' + property + '" typeof handler is: ' + typeof(handl
         }
     };
     
-    mraid.expand = function(dimensions, URL) {
+    mraid.expand = function(URL) {
+    	if (placementType === PLACEMENTS.INLINE) {
+        	mraidview.expand(URL);
+        }
+    };
+    
+    /*mraid.expand = function(dimensions, URL) {
 	/* introduced in MRAIDv1 */
-		var bOverride = true;
+		/*var bOverride = true;
 		if (dimensions === undefined) {
 			dimensions = {width:mraid.getMaxSize(bOverride).width, height:mraid.getMaxSize(bOverride).height, x:0, y:0};
 		}
@@ -451,15 +472,15 @@ console.log('for property "' + property + '" typeof handler is: ' + typeof(handl
         if (valid(dimensions, dimensionValidators, 'expand', true)) {
             mraidview.expand(dimensions, URL);
         }
-    };
+    };*/
     
     mraid.getExpandProperties = function() {
 	/* introduced in MRAIDv1 */
 		var props = clone(expandProperties);
-		if (parseFloat(mraidVersion, 10) < 2) {
-			delete props.allowOrientationChange;
-			delete props.forceOrientation;
-	    }
+		// if (parseFloat(mraidVersion, 10) < 2) {
+			// delete props.allowOrientationChange;
+			// delete props.forceOrientation;
+	    // }
         return props;
     };
     
@@ -475,18 +496,19 @@ console.log('for property "' + property + '" typeof handler is: ' + typeof(handl
         mraidview.close();
     };
     
-	mraid.useCustomClose = function() {
+	mraid.useCustomClose = function(useCustomCloseIndicator) {
 	/* introduced in MRAIDv1 */
-		/* @TODO */
-	}
+		mraidview.useCustomClose(useCustomCloseIndicator)
+	};
     
     mraid.resize = function() {
 	/* introduced in MRAIDv2 */
 	    if (parseFloat(mraidVersion, 10) < 2) {
 			broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (resize)', 'resize');
 	    } else {
-			//@tood: partial implementation
-			mraidview.resize();
+	    	if (placementType === PLACEMENTS.INLINE) {
+				mraidview.resize();
+	    	}
 		}
     };
     
@@ -495,7 +517,7 @@ console.log('for property "' + property + '" typeof handler is: ' + typeof(handl
 	    if (parseFloat(mraidVersion, 10) < 2) {
 			broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (getResizeProperties)', 'getResizeProperties');
 	    } else {
-	        return clone(resizeProperties);
+	    	return clone(resizeProperties);
 		}
 		return (null);
     };
@@ -621,5 +643,23 @@ console.log('for property "' + property + '" typeof handler is: ' + typeof(handl
         }
         return orientation;
     };
-     
+    
+    mraid.setOrientationProperties = function (properties) {
+    	if (parseFloat(mraidVersion, 10) < 2) { 
+			broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (setOrientationProperties)', 'setOrientationProperties');
+	    } else {
+	    	if (valid(properties, orientationPropertyValidators, 'setOrientationProperties')) {
+				mraidview.setOrientationProperties(properties);
+			}
+		}
+    };
+    
+    mraid.getOrientationProperties = function () {
+    	if (parseFloat(mraidVersion, 10) < 2) { 
+			broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (getOrientationProperties)', 'getOrientationProperties');
+	    } else {
+	        return clone(orientationProperties);
+		}
+		return (null);
+    };
 })();
