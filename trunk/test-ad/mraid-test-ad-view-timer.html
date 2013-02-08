@@ -1,0 +1,92 @@
+<script type="text/javascript" src="mraid.js"></script>
+<script type="application/javascript" charset="utf-8">
+	var readyTimeout;
+	function readyListener() {
+		if (typeof (mraid) === 'undefined') {
+			console.log('mraid not found yet');
+			readyTimeout = setTimeout(readyListener, 10);
+		} else {
+			var state = mraid.getState();
+			if (state === 'default') {
+				console.log ('mraid state is already default before could register listener for ready')
+				mraidReady();
+			} else {
+				console.log ('state is ' + state + '; register ready listener');
+				clearTimeout(readyTimeout);
+				mraid.addEventListener('ready', mraidReady);
+			}
+		}
+	}
+	readyListener();
+</script>
+
+<style type="text/css" media="screen">
+ 	* {
+ 		margin: 0px;
+ 		padding: 0px;
+ 	}
+ 	
+ 	body, html {
+ 		height: 100%;
+ 		background: -webkit-gradient(linear, right top, right bottom, color-stop(24%,#323232), color-stop(100%,#323232),color-stop(96%,black));
+ 	}
+ 	
+ 	h1 {
+ 		font-size: 15px;
+ 		text-transform: uppercase;
+ 		text-shadow: -1px -1px 0 rgba(0,0,0,0.75);
+ 		color:white;
+ 		font-weight: normal;
+ 		padding:20px;
+ 	}
+	
+	
+</style>
+
+<div id='ad'>
+	<h1 onclick="expand()" style="cursor:pointer ;text-align: center; font-family: Arial, Helvetica, sans-serif">Display time: <span id="seconds">0</span>.<span id="milliseconds">000</span><span style="text-transform: lowercase">s</span></h1>
+</div>
+
+
+<script type="text/javascript" charset="utf-8">
+	var timer,
+		passedTime = 0, //in ms
+		timerDomElements = {
+			seconds: document.getElementById('seconds'),
+			milliseconds: document.getElementById('milliseconds')
+		};
+		
+		function expand () {
+			//mraid.expand('../test-ad/mraid-test-ad-expanded.html');
+			console.warn('expand');
+			mraid.expand();
+		}
+		
+		function mraidReady() {
+			mraid.addEventListener('viewableChange', viewableChange);
+			mraid.useCustomClose(false);
+			viewableChange();
+		}
+		
+		function viewableChange () {
+			if (mraid.isViewable()) {
+				timer = setInterval(addTime, 10);
+			} else {
+				clearInterval(timer);
+			}
+		}
+		
+		
+		function addTime() {
+			passedTime += 10;
+			if (passedTime % 1000 == 0) {
+				timerDomElements.seconds.innerHTML = passedTime / 1000;
+			}
+			if (passedTime % 100 == 0) {
+				var milliseconds = (passedTime % 1000 === 0) ? '000': passedTime % 1000;
+				
+				timerDomElements.milliseconds.innerHTML = milliseconds;
+			}
+		}
+</script>
+
