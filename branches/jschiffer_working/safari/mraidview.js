@@ -276,8 +276,8 @@ INFO mraid.js identification script found
     			&& (state === STATES.EXPANDED || placement === PLACEMENTS.INTERSTITIAL)) {
     				
     			maxDiv.style['-webkit-transform'] = 'rotate(90deg)';
-    			var dx = (maxSize.height - maxSize.width)/2;   			
-    			setMaxAdArea({'width':maxSize.height,'height':maxSize.width,'x':maxSize.y-dx, 'y':maxSize.x+dx});
+    			var dx = (maxSize.height - maxSize.width)/2;
+                updateAdSize({'width':maxSize.height,'height':maxSize.width,'x':maxSize.y-dx, 'y':maxSize.x+dx});
     			if (state === STATES.EXPANDED) {
     				setAdResizeContainerStyle((adExpandedContainer || adResizeContainer), {'width':maxSize.height,'height':maxSize.width,'x':0, 'y':0});
     			} else if (placement === PLACEMENTS.INTERSTITIAL) {
@@ -288,7 +288,7 @@ INFO mraid.js identification script found
     			}
     			setAdOrientation(90);
     		} else {
-    			setMaxAdArea(maxSize);
+                updateAdSize(maxSize);
     			if (state === STATES.EXPANDED) {
     				setAdResizeContainerStyle((adExpandedContainer || adResizeContainer), {'width':maxSize.width,'height':maxSize.height,'x':0, 'y':0});
     			} else if (placement === PLACEMENTS.INTERSTITIAL) {
@@ -309,7 +309,7 @@ INFO mraid.js identification script found
 				
 				maxDiv.style['-webkit-transform'] = 'rotate(90deg)';
 				var dx = (maxSize.height - maxSize.width)/2;
-    			setMaxAdArea({'width':maxSize.width,'height':maxSize.height,'x':maxSize.y+dx, 'y':maxSize.x-dx});
+                updateAdSize({'width':maxSize.width,'height':maxSize.height,'x':maxSize.y+dx, 'y':maxSize.x-dx});
     			if (state === STATES.EXPANDED) {
     				setAdResizeContainerStyle((adExpandedContainer || adResizeContainer), {'width':maxSize.width,'height':maxSize.height,'x':0, 'y':0});
     			} else if (placement === PLACEMENTS.INTERSTITIAL) {
@@ -317,7 +317,7 @@ INFO mraid.js identification script found
     			}
     			setAdOrientation(0);
     		} else {
-    			setMaxAdArea({'width':maxSize.height,'height':maxSize.width,'x':maxSize.x, 'y':maxSize.y});
+                updateAdSize({'width':maxSize.height,'height':maxSize.width,'x':maxSize.x, 'y':maxSize.y})
     			if (state === STATES.EXPANDED) {
     				setAdResizeContainerStyle((adExpandedContainer || adResizeContainer), {'width':maxSize.height,'height':maxSize.width,'x':0, 'y':0});
     			} else if (placement === PLACEMENTS.INTERSTITIAL) {
@@ -584,6 +584,14 @@ INFO mraid.js identification script found
         maxDiv.style.left = [size.x, 'px'].join('');
         maxDiv.style.top = [size.y, 'px'].join('');
         !adBridge || adBridge.pushChange({'maxSize': size});
+    };
+
+    var setExpandProperties = function(size){
+        !adBridge || adBridge.pushChange({'expandProperties': size});
+    };
+
+    var setScreenSize = function(size){
+        !adBridge || adBridge.pushChange({'screenSize': size});  
     };
     
     var setAdResizeContainerStyle = function (resizeContainer, _maxSize) {
@@ -1045,5 +1053,12 @@ INFO mraid.js identification script found
     		adContainerOrientation = degree;
     		adBridge.pushChange({'orientation': adContainerOrientation});
     	}
+    };
+
+    var updateAdSize = function(val){
+        setMaxAdArea(val);
+        setExpandProperties(val);
+        setScreenSize(val);
+
     };
 })();
