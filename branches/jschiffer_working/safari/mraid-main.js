@@ -137,6 +137,8 @@
     var screenSize = null;
 	var isViewable = false;
     
+
+    
     // PRIVATE PROPERTIES (internal) //////////////////////////////////////////////////////
     
     var intervalID = null;
@@ -175,7 +177,7 @@
 		allowOrientationChange:function(value) { return typeof('false')==='boolean' }, 
         forceOrientation:function(value) { for (a in ORIENTATIONS) if (value === ORIENTATIONS[a]) return(true); return(false); }
 	}
-    
+
     var changeHandlers = {
 		version:function(val) {
 			mraidVersion = val;
@@ -183,7 +185,7 @@
 		placement:function(val){
 			placementType = val;
 		},
-        state:function(val) {
+        state:function(val,dispatch) {
 			console.log('state listener. state='+state+':new='+val);
             if (state == STATES.UNKNOWN && val != STATES.UNKNOWN) {
                 broadcastEvent(EVENTS.INFO, 'controller initialized');
@@ -193,13 +195,20 @@
 			} else {
 				broadcastEvent(EVENTS.INFO, 'setting state to ' + stringify(val));
 				state = val;
-				broadcastEvent(EVENTS.STATECHANGE, state);
+                if(dispatch == true){
+                    broadcastEvent(EVENTS.STATECHANGE, state);    
+                }
+				
 			}
         },
-        size:function(val) {
+        size:function(val,dispatch) {
+            
+            console.info(this);
             broadcastEvent(EVENTS.INFO, 'setting size to ' + stringify(val));
             size = val;
-            broadcastEvent(EVENTS.SIZECHANGE, size.width, size.height);
+            if(dispatch==true){
+                broadcastEvent(EVENTS.SIZECHANGE, size.width, size.height);    
+            }
         },
         defaultPosition:function(val) {
             broadcastEvent(EVENTS.INFO, 'setting default position to ' + stringify(val));
@@ -232,20 +241,26 @@
                 supports[FEATURES[key]] = contains(FEATURES[key], val);
             }
         },
-        orientation:function(val) {
+        orientation:function(val,dispatch) {
             broadcastEvent(EVENTS.INFO, 'setting orientation to ' + stringify(val));
             orientation = val;
-            broadcastEvent(EVENTS.ORIENTATIONCHANGE, orientation);
+            if(dispatch == true){
+                broadcastEvent(EVENTS.ORIENTATIONCHANGE, orientation);
+            }
         },
-        screenSize:function(val) {
+        screenSize:function(val,dispatch) {
             broadcastEvent(EVENTS.INFO, 'setting screenSize to ' + stringify(val));
             screenSize = val;
-            broadcastEvent(EVENTS.SCREENCHANGE, screenSize.width, screenSize.height);
+            if(dispatch == true){
+                broadcastEvent(EVENTS.SCREENCHANGE, screenSize.width, screenSize.height);    
+            }
         },
-		isViewable:function(val) {
+		isViewable:function(val,dispatch) {
 			broadcastEvent(EVENTS.INFO, 'setting isViewable to ' + stringify(val));
 			isViewable = val;
-			broadcastEvent(EVENTS.VIEWABLECHANGE, isViewable);
+            if(dispatch == true){
+                broadcastEvent(EVENTS.VIEWABLECHANGE, isViewable);    
+            }
 		},
 		orientationProperties:function(val) {
 			broadcastEvent(EVENTS.INFO, 'setting orientationProperties to ' + stringify(val));
@@ -254,10 +269,14 @@
 			}
 		}
     };
+
+
     
     var listeners = {};
     
     var EventListeners = function(event) {
+        console.info('new EventListeners event = '+event);
+
         this.event = event;
         this.count = 0;
         var listeners = {};
@@ -296,15 +315,165 @@
             return out.join('');
         };
     };
+
+    var modelStrategies = {
+        equate      :  function equate(prop1,prop2){
+                                prop1 = prop2;
+                                return prop1;
+                            },
+        override    :  function override(origObject,newObject){
+                                for( var i in newObject){ 
+                                    origObject[i] = newObject[i] ;
+                                } 
+                                return origObject;
+                            },
+        remap       :  function remap(target,properties,val){
+                                console.info('remap');
+                                console.info('target');
+                                console.info(target);
+                                console.info('val');
+                                console.info(val);
+                                target = {};
+                                for(var n in properties){
+                                    target[properties[n]] = contains(properties[n],val);
+                                }
+                                return target;
+                            },
+        //not using this because it is insane.                    
+        conditional :  function conditional(conditionArray,methodArray){
+                            for(var i=0,il=conditions.length;i<il;i++){
+                                if(conditions[i] == true){
+                                    methodArray[i].method.apply(this,methodArray[i].arguments)
+                                }
+                            }
+                        },
+        state       :   function state(currentState,val){
+                            console.info('state "strategy function" ');
+                            console.info('currentState')
+                            console.info(currentState)
+                            console.info('val');
+                            console.info(val);
+                            if (currentState == STATES.UNKNOWN && val != STATES.UNKNOWN) {
+                                broadcastEvent(EVENTS.INFO, 'controller initialized');
+                            }
+                            if (currentState == STATES.LOADING && val != STATES.LOADING) {
+                                mraid.signalReady();
+                                //
+                                return STATES.DEFAULT;//this change happens globally in signal ready;
+                            } else {
+                                broadcastEvent(EVENTS.INFO, 'setting state to ' + stringify(val));
+                                return val;
+                            }
+                        }
+        }
+
+    var model = {
+        'version'               : {'value':mraidVersion,'strategy':modelStrategies.equate},
+        'placement'             : {'value':placementType,'strategy':modelStrategies.equate},
+        'state'                 : {'value':state,'strategy':modelStrategies.state},
+        'size'                  : {'value':size,'strategy':modelStrategies.equate},
+        'defaultPosition'       : {'value':defaultPosition,'strategy':modelStrategies.equate},
+        'currentPosition'       : {'value':currentPosition,'strategy':modelStrategies.equate},
+        'maxSize'               : {'value':maxSize,'strategy':modelStrategies.equate},
+        'expandProperties'      : {'value':expandProperties,'strategy':modelStrategies.override},
+        'supports'              : {'value':supports,'strategy':modelStrategies.remap,'arguments':FEATURES,'argumentPosition':0},
+        'orientation'           : {'value':orientation,'strategy':modelStrategies.equate},
+        'screenSize'            : {'value':screenSize,'strategy':modelStrategies.equate},
+        'isViewable'            : {'value':isViewable,'strategy':modelStrategies.equate},
+        'orientationProperties' : {'value':orientationProperties,'strategy':modelStrategies.override},
+        getProperty:function(name){
+            return this[name]
+        }
+    }
+
+    var updateModel = function(data){
+        //we get the change object which has name of model propery and arguments.
+        //we look up whcih model object we want, 
+        //we then apply the appropriate strategy and assign it that model objects value; 
+        //does this propagate outside the model.... e.g if i assign mraidversion.value = 
+        console.info('updateModel data');
+        console.info(data);
+        for(var n in data){
+            console.info(n+ ' == '+data[n]);
+            var modelName = n;
+            console.info('modelName');
+            console.info(modelName);
+            var currentModel = model[n];
+            if(modelName == 'state'){
+                alert('state = '+currentModel.value);
+            }
+            console.info('currentModel('+n+')');
+            console.info(currentModel);
+            
+            if(currentModel){
+                var args = [data[n]];
+                    //args = currentModel.arguments ? currentModel.arguments.concat(data[n]):args;
+                    if(currentModel.arguments){
+                        var pos = currentModel.argumentPosition;
+                        args.splice(pos,0,currentModel.arguments);
+                        console.info('args.length');
+                        console.info(args.length);
+                        console.info(args);
+
+                    }
+                args.unshift(currentModel.value);
+
+                currentModel.value = currentModel.strategy.apply(this,args);
+                /*
+                switch(currentModel.strategy.name){
+                    case 'equate':
+                        currentModel.value = currentModel.strategy.apply(this,args);
+                    break;
+                    case 'remap':
+                        currentModel.value = currentModel.strategy.apply(this,args);
+                    break;
+                    case 'state':
+                        currentModel.value = currentModel.strategy.apply(this,args);
+                    break;
+                    case 'override':
+                        currentModel.value = currentModel.strategy.apply(this,args);
+                    break;
+                    case 'conditional':
+                    //too crazy.
+                    break;
+                }
+                */
+                //currentModel.value = currentModel.strategy.apply(this,[currentModel.value,data[n]]);   
+                
+                console.info('after apply,for modelName '+modelName+' currentModel.value = ');
+                console.info(currentModel.value);
+            }
+            
+        }
+        //console.info(mraidversion);
+        console.info('********** model ************');
+        console.info(model);
+    }
     
     // PRIVATE METHODS ////////////////////////////////////////////////////////////
-    
+    /*
+        on  pushChange, registers and fires specified (specified in pushChage params) changeHandlers.
+    */
     mraidview.addEventListener('change', function(properties) {
+        console.warn('change event in mraid-main');
+
+        console.dir(properties);
+        updateModel(properties);
         for (var property in properties) {
             var handler = changeHandlers[property];
-console.log('for property "' + property + '" typeof handler is: ' + typeof(handler));			
-            handler(properties[property]);
+    //console.log('for property "' + property + '" typeof handler is: ' + typeof(handler));			
+            //executes function(args);
+            handler(properties[property],false);
         }
+
+        setTimeout(function(){
+            for (var property in properties) {
+            var handler = changeHandlers[property];
+            console.log('for property "' + property + '" typeof handler is: ' + typeof(handler));           
+            //executes function(args);
+            handler(properties[property],true);
+        }
+        },100)
     });
     
     mraidview.addEventListener('error', function(message, action) {
@@ -369,10 +538,20 @@ console.log('for property "' + property + '" typeof handler is: ' + typeof(handl
     };
     
     var broadcastEvent = function() {
+        
         var args = new Array(arguments.length);
         for (var i = 0; i < arguments.length; i++) args[i] = arguments[i];
+    
         var event = args.shift();
-        if (listeners[event]) listeners[event].broadcast(args);
+        if(event!='info'){
+            console.info('mraid-main, broadcast event')
+            console.info('event = '+event);
+        }
+            
+    
+        if (listeners[event]) {
+            listeners[event].broadcast(args);
+        }
     }
     
     // PUBLIC METHODS ////////////////////////////////////////////////////////////////////
@@ -381,7 +560,10 @@ console.log('for property "' + property + '" typeof handler is: ' + typeof(handl
 	/* introduced in MRAIDv1 */
 		broadcastEvent(EVENTS.INFO, 'START READY SIGNAL, setting state to ' + stringify(STATES.DEFAULT));
 		state = STATES.DEFAULT;
+        
 		broadcastEvent(EVENTS.STATECHANGE, state);
+        
+
 		broadcastEvent(EVENTS.INFO, 'ready event fired');
 		broadcastEvent(EVENTS.READY, 'ready event fired');
         window.clearInterval(intervalID);
@@ -457,7 +639,9 @@ console.log('for property "' + property + '" typeof handler is: ' + typeof(handl
     };
     
     mraid.expand = function(URL) {
+        console.info('mraid-main.js expand()');
     	if (placementType === PLACEMENTS.INLINE) {
+            console.info('mraid-main.js falling into expand condition')
         	mraidview.expand(URL);
         }
     };

@@ -96,29 +96,40 @@ INFO mraid.js identification script found
     // EVENT HANDLING ///////////////////////////////////////////////////////////////
     
     var listeners = {};
-    
+    //in this view, broadcast is ONLY used for error and info. it 
     var broadcastEvent = function() {
         var args = new Array(arguments.length);
         for (var i = 0; i < arguments.length; i++) args[i] = arguments[i];
         var event = args.shift();
+            if(event!=='info'){
+                console.info('in broadcastEvent in mraidview.js, event===');
+                console.info(event);    
+            }
+            
         for (var key in listeners[event]) {
+            //the key is the function + scope to string per addEventListener
+            //makes sense, confirmed.
             var handler = listeners[event][key];
             handler.func.apply(handler.func.scope, args);
         }
     }
 	
 	mraidview.broadcastEvent = broadcastEvent;
-    
+    //as currently configured, this adds error and info reporting from main.js
+    //map with key of function name and its scope = {scope and func}
     mraidview.addEventListener = function(event, listener, scope) {
         var key = String(listener) + String(scope);
         var map = listeners[event]
         if (!map) {
             map = {};
             listeners[event] = map;
+
         }
         map[key] = {scope:(scope?scope:{}),func:listener};
+        console.info('listeners')
+        console.dir(listeners)
     };
-    
+    //map with key of function name and its scope = {scope and func}
     mraidview.removeEventListener = function(event, listener, scope) {
         var key = String(listener) + String(scope);
         var map = listeners[event];
@@ -174,7 +185,7 @@ INFO mraid.js identification script found
         orientation = -1;
     
     // PUBLIC ACCESSOR METHODS ///////////////////////////////////////////////////////////////
-    
+    //exposed to main.js; thats the caller here.
     mraidview.getAdContent = function() {
         return adContent;
     };
@@ -264,6 +275,7 @@ INFO mraid.js identification script found
     	var body = adWindow.document.getElementsByTagName('body')[0],
     		maxDiv = adWindow.document.getElementById('maxArea');
     	
+
     	maxDiv.style['-webkit-transform'] = '';
     	
     	if (degree%180 === 0) { // Portrait
@@ -333,6 +345,9 @@ INFO mraid.js identification script found
     		adWindow.setNavigation();
     	}
     };
+    
+
+    
     
     mraidview.setDefaultWindowSize = function () {
 		defaultWindowSize = {};
@@ -441,6 +456,9 @@ INFO mraid.js identification script found
 		isViewable = false;
     };
     
+
+    
+
 	var showMraidCloseButton = function(toggle) {
 		var	closeDiv = closeEventRegion;
 			
@@ -490,6 +508,7 @@ INFO mraid.js identification script found
 		}
 		
 	};
+    
 	
     var loadAd = function() {
         reset();
@@ -771,24 +790,29 @@ INFO mraid.js identification script found
 		adBridge.pushChange({'state':state, 'currentPosition':currentPosition});
 		repaintAdWindow();
    	};
-   
+    
+    
+
    	var repaintAdWindow = function () {
    		if (!adWindow) return;
    		adWindow.resizeBy(-1,0);
    		adWindow.resizeBy(1,0);
    	};
+
+
     
     var initAdBridge = function(bridge, controller) {
+        console.info('initializing bridge object');
         broadcastEvent(EVENTS.INFO, 'initializing bridge object ' + bridge + controller);
         
         inactiveAdBridge = adBridge;
         inactiveAdController = adController;
-        
+
         adBridge = bridge;
         adController = controller;
         
         if (placement === PLACEMENTS.INTERSTITIAL) {
-        	showMraidCloseButton(true);
+            showMraidCloseButton(true);
         }
         
         bridge.addEventListener('activate', function(service) {
@@ -802,56 +826,56 @@ INFO mraid.js identification script found
         }, this);
   
         bridge.addEventListener('expand', function(uri) {
-        	if (state === STATES.HIDDEN || state === STATES.EXPANDED || state === STATES.UNKNOWN || state === STATES.LOADING) {
-        		return;
-        	}
-    		state = STATES.EXPANDED;
-    		showMraidCloseButton(true);
-        	
-        	var ac = adResizeContainer;
-        		acs = adResizeContainer.style,
-        		topAdContainer = adContainer;
-        	if (uri && uri !== '') {
-        		state = STATES.LOADING;
-        		
-        		adExpandedContainer = document.createElement('div');
-	        	adFrameExpanded = document.createElement('iframe'); 
-	        	adFrameExpanded.setAttribute('scrolling', 'no');
-	        	adFrameExpanded.setAttribute('frameborder', 'adFrameExpanded');
-	        	adFrameExpanded.setAttribute('id', '0');
-	        	adFrameExpanded.style.height = '100%';
-	        	adFrameExpanded.style.width = '100%';
-	        	adFrameExpanded.style.position = 'absolute';
-	        	adFrameExpanded.style.overflow = 'hidden';
-	        	adFrameExpanded.style.padding = '0px';
-	        	adFrameExpanded.style.margin = '0px';
-	        	adFrameExpanded.style['z-index'] = getHighestZindex()+1;
-	        	ac = adExpandedContainer;
-	        	adExpandedContainer.appendChild(adFrameExpanded);
-	        	adExpandedContainer.appendChild(closeEventRegion);
-	        	adContainer.parentNode.appendChild(adExpandedContainer);
-	        	insertAdURI(adFrameExpanded, uri);
-	        	adExpandedContainer.style['z-index'] = getHighestZindex()+1;
-	        	topAdContainer = adFrameExpanded;
-        	}
-        	
-        	acs.position = 'absolute';
-        	
-        	setAdResizeContainerStyle(ac, maxSize);
-        	
-			topAdContainer['z-index'] = getHighestZindex()+1;
-        	
-        	if (!uri || uri == '') {
-	    		adBridge.pushChange({'state':state, 'currentPosition': currentPosition, 'size': size });
-		        broadcastEvent(EVENTS.INFO, 'expanding one-part ad');
-        		repaintAdWindow();
-		        
-        	} else {
-        		broadcastEvent(EVENTS.INFO, 'expanding two-part ad: ' + uri);
-        	}
-        	
-			mraidview.setOrientation(orientation, true);
-			
+            if (state === STATES.HIDDEN || state === STATES.EXPANDED || state === STATES.UNKNOWN || state === STATES.LOADING) {
+                return;
+            }
+            state = STATES.EXPANDED;
+            showMraidCloseButton(true);
+            
+            var ac = adResizeContainer;
+                acs = adResizeContainer.style,
+                topAdContainer = adContainer;
+            if (uri && uri !== '') {
+                state = STATES.LOADING;
+                
+                adExpandedContainer = document.createElement('div');
+                adFrameExpanded = document.createElement('iframe'); 
+                adFrameExpanded.setAttribute('scrolling', 'no');
+                adFrameExpanded.setAttribute('frameborder', 'adFrameExpanded');
+                adFrameExpanded.setAttribute('id', '0');
+                adFrameExpanded.style.height = '100%';
+                adFrameExpanded.style.width = '100%';
+                adFrameExpanded.style.position = 'absolute';
+                adFrameExpanded.style.overflow = 'hidden';
+                adFrameExpanded.style.padding = '0px';
+                adFrameExpanded.style.margin = '0px';
+                adFrameExpanded.style['z-index'] = getHighestZindex()+1;
+                ac = adExpandedContainer;
+                adExpandedContainer.appendChild(adFrameExpanded);
+                adExpandedContainer.appendChild(closeEventRegion);
+                adContainer.parentNode.appendChild(adExpandedContainer);
+                insertAdURI(adFrameExpanded, uri);
+                adExpandedContainer.style['z-index'] = getHighestZindex()+1;
+                topAdContainer = adFrameExpanded;
+            }
+            
+            acs.position = 'absolute';
+            
+            setAdResizeContainerStyle(ac, maxSize);
+            
+            topAdContainer['z-index'] = getHighestZindex()+1;
+            
+            if (!uri || uri == '') {
+                adBridge.pushChange({'state':state, 'currentPosition': currentPosition, 'size': size });
+                broadcastEvent(EVENTS.INFO, 'expanding one-part ad');
+                repaintAdWindow();
+                
+            } else {
+                broadcastEvent(EVENTS.INFO, 'expanding two-part ad: ' + uri);
+            }
+            
+            mraidview.setOrientation(orientation, true);
+            
         }, this);
         
         bridge.addEventListener('close', closeAd , this);
@@ -877,34 +901,34 @@ INFO mraid.js identification script found
             broadcastEvent(EVENTS.INFO, 'opening ' + URL);
             window.open(URL, '_blank', 'left=1000,width='+screenSize.width+',height='+screenSize.height+',menubar=no,location=no,toolbar=no,status=no,personalbar=no,resizable=no,scrollbars=no,chrome=no,all=no');
         }, this);
-		
-		bridge.addEventListener('playVideo', function(URL) {
-			broadcastEvent(EVENTS.INFO, 'playing ' + URL);
-			window.open(URL, '_blank');
-		}, this);
         
-		bridge.addEventListener('storePicture', function(URL) {
-			var allow = confirm('CONFIRM: Store this image to gallery?\nURL:' + URL);
-			if (allow) {
-				window.open('../imageDownload.php?imageUrl=' + URL);
-				broadcastEvent(EVENTS.INFO, 'storing the image ' + URL);
-			} else {
-				broadcastEvent(EVENTS.ERROR, 'Permission denied by user', 'storePicture');
-			}
-		}, this);
-		
+        bridge.addEventListener('playVideo', function(URL) {
+            broadcastEvent(EVENTS.INFO, 'playing ' + URL);
+            window.open(URL, '_blank');
+        }, this);
+        
+        bridge.addEventListener('storePicture', function(URL) {
+            var allow = confirm('CONFIRM: Store this image to gallery?\nURL:' + URL);
+            if (allow) {
+                window.open('../imageDownload.php?imageUrl=' + URL);
+                broadcastEvent(EVENTS.INFO, 'storing the image ' + URL);
+            } else {
+                broadcastEvent(EVENTS.ERROR, 'Permission denied by user', 'storePicture');
+            }
+        }, this);
+        
         bridge.addEventListener('resize', function(uri) {
-        	if (state === STATES.EXPANDED) {
-        		broadcastEvent(EVENTS.ERROR, 'Can not expand a resized ad', 'resize');
-        		return;
-        	} else if (state === STATES.HIDDEN || state === STATES.UNKNOWN || state === STATES.LOADING) {
-        		return;
-        	}
-        	state = STATES.RESIZED;
-        	showMraidCloseButton(true);
-        	resizeAd();
-        	
-        	adBridge.pushChange({ 'state':state, 'currentPosition':currentPosition, 'size':size });
+            if (state === STATES.EXPANDED) {
+                broadcastEvent(EVENTS.ERROR, 'Can not expand a resized ad', 'resize');
+                return;
+            } else if (state === STATES.HIDDEN || state === STATES.UNKNOWN || state === STATES.LOADING) {
+                return;
+            }
+            state = STATES.RESIZED;
+            showMraidCloseButton(true);
+            resizeAd();
+            
+            adBridge.pushChange({ 'state':state, 'currentPosition':currentPosition, 'size':size });
         }, this);
         
         bridge.addEventListener('setExpandProperties', function(properties) {
@@ -913,33 +937,33 @@ INFO mraid.js identification script found
             !properties.height || (expandProperties.height = properties.height);
             !properties.useCustomClose || (expandProperties.useCustomClose = properties.useCustomClose);
             
-			adBridge.pushChange({'expandProperties':expandProperties});
+            adBridge.pushChange({'expandProperties':expandProperties});
         }, this);
         
         bridge.addEventListener('setResizeProperties', function(properties) {
             broadcastEvent(EVENTS.INFO, 'setting resize properties to ' + stringify(properties));
             setResizeProperties(properties);
-			adBridge.pushChange({'resizeProperties':resizeProperties});
+            adBridge.pushChange({'resizeProperties':resizeProperties});
         }, this);
         
         bridge.addEventListener('createCalendarEvent', function(params) {
-			var allow = confirm('CONFIRM: Create this calendar event?\n' + stringify(params));
-			if (allow) {
-	            broadcastEvent(EVENTS.INFO, 'creating event ' + stringify(params));
-			} else {
-				broadcastEvent(EVENTS.ERROR, 'Permission denied by user', 'createCalendarEvent');
-			}
+            var allow = confirm('CONFIRM: Create this calendar event?\n' + stringify(params));
+            if (allow) {
+                broadcastEvent(EVENTS.INFO, 'creating event ' + stringify(params));
+            } else {
+                broadcastEvent(EVENTS.ERROR, 'Permission denied by user', 'createCalendarEvent');
+            }
         }, this);
         
         bridge.addEventListener('setOrientationProperties', function(properties) {
             broadcastEvent(EVENTS.INFO, 'setting orientation properties to ' + stringify(properties));
             setOrientationProperties(properties);
-			adBridge.pushChange({'resizeProperties':orienationProperties});
+            adBridge.pushChange({'resizeProperties':orienationProperties});
         }, this);
         
         bridge.addEventListener('useCustomClose', function(useCustomCloseIndicator) {
-        	 broadcastEvent(EVENTS.INFO, 'setting useCustomClose properties to ' + stringify(useCustomCloseIndicator));
-        	 expandProperties.useCustomClose = !!useCustomCloseIndicator;
+             broadcastEvent(EVENTS.INFO, 'setting useCustomClose properties to ' + stringify(useCustomCloseIndicator));
+             expandProperties.useCustomClose = !!useCustomCloseIndicator;
         }, this);
         
         controller.addEventListener('info', function(message) {
@@ -951,34 +975,36 @@ INFO mraid.js identification script found
         }, this);
         
         var initProps = {
-			state:STATES.LOADING,
+            state:STATES.LOADING,
             screenSize:screenSize,
             orientation:orientation,
             size:size,
             defaultPosition:defaultPosition,
             maxSize:maxSize,
             expandProperties:expandProperties,
-			resizeProperties:resizeProperties,
-			orientationProperties:orientationProperties,
+            resizeProperties:resizeProperties,
+            orientationProperties:orientationProperties,
             supports:supports,
-			version:mraidview.version,
-			placement:mraidview.placement,
-			currentPosition:defaultPosition,
-			isViewable:isAdViewAble()
+            version:mraidview.version,
+            placement:mraidview.placement,
+            currentPosition:defaultPosition,
+            isViewable:isAdViewAble()
         };
         
         bridge.pushChange({version:mraidview.version});
         bridge.pushChange(initProps);
         
         if (!!inactiveAdBridge) {
-        	state =  STATES.EXPANDED;
-        	mraidview.setOrientation(orientation, true);
-        	bridge.pushChange({'state':state, 'currentPosition': currentPosition });
-        	repaintAdWindow();
+            state =  STATES.EXPANDED;
+            mraidview.setOrientation(orientation, true);
+            bridge.pushChange({'state':state, 'currentPosition': currentPosition });
+            repaintAdWindow();
         }
 
-		bridge.pushChange({ state:state });
+        bridge.pushChange({ state:state });
     };
+    
+    
     
     var initAdFrame = function() {
     	if (this.detachEvent) {

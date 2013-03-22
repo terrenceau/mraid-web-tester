@@ -20,8 +20,18 @@
 			for (i = 0; i < arguments.length; i++) {
 				args[i] = arguments[i];
 			}
+            
+            //console.info(listeners);
+
+            //on event change, this calls the change handlers found in mraid-main.js
 
 			event = args.shift();
+
+            if(event!='info'){
+                console.info('mraidview-bridge.js .broadcast, listeners fire for event: '+event);
+            }
+            console.warn(event);
+            console.dir(listeners[event])
 			for (key in listeners[event]) {
 				handler = listeners[event][key];
 				handler.func.apply(handler.func.scope, args);
@@ -30,11 +40,12 @@
 
 	mraidview.broadcastEvent = broadcastEvent;
 	mraidview.scriptFound = false;
-
+    
+    //when we initAdBridge in mraidView, we go through the events and register them here.
     mraidview.addEventListener = function (event, listener, scope) {
         var key = String(listener) + String(scope),
 			map = listeners[event];
-
+    //console.info('bridge adding event: '+event)
         if (!map) {
             map = {};
             listeners[event] = map;
@@ -51,8 +62,11 @@
             delete map[key];
         }
     };
-
+    //this triggers change event listener in mraid-main.
+    //which in turn calls <i>all</i> of the change listeners
+    //no.
     mraidview.pushChange = function (obj) {
+        console.warn('pushChange obj');
     	console.warn(obj);
         broadcastEvent('change', obj);
     };
@@ -111,6 +125,5 @@
 	
 	mraidview.useCustomClose = function (useCustomCloseIndicator) {
 		broadcastEvent('useCustomClose', useCustomCloseIndicator);
-	}
-
+	};
 })();
