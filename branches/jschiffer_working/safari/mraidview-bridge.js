@@ -30,8 +30,8 @@
             if(event!='info'){
                 console.info('mraidview-bridge.js .broadcast, listeners fire for event: '+event);
             }
-            console.warn(event);
-            console.dir(listeners[event])
+            //console.warn(event);
+            //console.dir(listeners[event])
 			for (key in listeners[event]) {
 				handler = listeners[event][key];
 				handler.func.apply(handler.func.scope, args);
@@ -69,6 +69,7 @@
         console.warn('pushChange obj');
     	console.warn(obj);
         broadcastEvent('change', obj);
+        //mraid.update(obj);
     };
 
     mraidview.pushError = function (message, action) {
