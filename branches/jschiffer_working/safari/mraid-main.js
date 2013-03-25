@@ -91,32 +91,32 @@
             },
             _strategies = {
                 assign      :  function equate(prop1,prop2){
-                                prop1 = prop2;
-                                return prop1;
+                                //prop1 = prop2;
+                                return (prop1=prop2);
                             },
                 override    :  function override(origObject,newObject){
-                                for( var i in newObject){ 
-                                    origObject[i] = newObject[i] ;
-                                } 
-                                return origObject;
+                                    for( var i in newObject){ 
+                                        origObject[i] = newObject[i] ;
+                                    } 
+                                    return origObject;
                             },
                 remap       :  function remap(target,properties,val){
-                                target = {};
-                                for(var n in properties){
-                                    target[properties[n]] = contains(properties[n],val);
-                                }
-                                return target;
+                                    target = {};
+                                    for(var n in properties){
+                                        target[properties[n]] = contains(properties[n],val);
+                                    }
+                                    return target;
                             },
                 state       :   function state(currentState,val){            
-                            if (currentState == STATES.UNKNOWN && val != STATES.UNKNOWN) {
-                                broadcastEvent(EVENTS.INFO, 'controller initialized');
-                            }
-                            if (currentState == STATES.LOADING && val != STATES.LOADING) {
-                                mraid.signalReady();//sets state to default.
-                                return model.getValue('state');//STATES.DEFAULT;
-                            } else {
-                                broadcastEvent(EVENTS.INFO, 'setting state to ' + stringify(val));
-                                return val;
+                                    if (currentState == STATES.UNKNOWN && val != STATES.UNKNOWN) {
+                                        broadcastEvent(EVENTS.INFO, 'controller initialized');
+                                    }
+                                    if (currentState == STATES.LOADING && val != STATES.LOADING) {
+                                        mraid.signalReady();//sets state to default.
+                                        return model.getValue('state');//STATES.DEFAULT;
+                                    } else {
+                                        broadcastEvent(EVENTS.INFO, 'setting state to ' + stringify(val));
+                                        return val;
                             }
                         }
             },
@@ -130,6 +130,7 @@
                 if(_models.hasOwnProperty(name)){
                     _models[name] = value;
                 }
+                return null;
             },
             _getModelProperty = function(name,property){
                 if(_models.hasOwnProperty(name) && _models[name].hasOwnProperty(property)){
@@ -141,6 +142,7 @@
                 if(_models.hasOwnProperty(name) && _models[name].hasOwnProperty(property)){
                     _models[name][property] = value;
                 }
+                return null;
             },
             _getValue = function(name){
                 if(_models.hasOwnProperty(name)){
@@ -152,7 +154,10 @@
                 _setModelProperty(name,'value',value);
             },
             _getStrategy = function(name){
-                return _strategies[name];
+                if(_strategies.hasOwnProperty(name)){
+                    return _strategies[name];    
+                }
+                return null;
             },
             _getModels = function(){
                 return _models;
@@ -287,15 +292,7 @@
         //model.init({'state':state});
 
         for(var n in data){
-            //console.info(n+ ' == '+data[n]);
-            var modelName = n;
-            //console.info('modelName');
-            //console.info(modelName);
             var currentModel = model.getModel(n);
-            
-            //console.info('currentModel('+n+')');
-            //console.info(currentModel);
-            
             if(currentModel){
                 //wrap args specified in a an array as we are using apply.
                 var args = [data[n]];
@@ -312,7 +309,6 @@
             }
             
         }
-        //console.info(mraidversion);
         console.info('********** model updated ************');
         console.info(model.getModels());
     }
@@ -337,7 +333,6 @@
                 //executes function(args);
                 handler(properties[property]);    
             }
-            
         } 
     }
     
@@ -419,8 +414,10 @@
     mraid.signalReady = function() {
 	/* introduced in MRAIDv1 */
 		broadcastEvent(EVENTS.INFO, 'START READY SIGNAL, setting state to ' + stringify(STATES.DEFAULT));
+        
         model.setValue('state',STATES.DEFAULT);
-		broadcastEvent(EVENTS.STATECHANGE, model.getValue('state'));
+		
+        broadcastEvent(EVENTS.STATECHANGE, model.getValue('state'));
         
 		broadcastEvent(EVENTS.INFO, 'ready event fired');
 		broadcastEvent(EVENTS.READY, 'ready event fired');
@@ -479,13 +476,12 @@
     
     mraid.getPlacementType = function() {
 	/* introduced in MRAIDv1 */
-    return model.getValue('placement')
-        //return model.getModel('placement').value;//placementType;
+        return model.getValue('placement')
     };
 	
 	mraid.isViewable = function() {
 	/* introduced in MRAIDv1 */
-		return model.getProperty('isViewable').value;//isViewable;
+		return model.getValue('isViewable');//isViewable;
 	};
 
     mraid.open = function(URL) {
@@ -582,16 +578,13 @@
 	    if (parseFloat(model.getValue('version'), 10) < 2) {
 			broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (getCurrentPosition)', 'getCurrentPosition');
 	    } else {
-
             return clone(model.getValue('currentPosition'));
-	        //return clone(currentPosition);
 		}
 		return (null);
     };
 	
 	mraid.getSize = function() {
 	/* introduced in MRAIDv1, deprecated in MRAIDv2 */
-        //var pos = clone(currentPosition);
         var pos = clone(model.getValue('currentPosition'));
 		return ({width:pos.width, height:pos.height});
     };
