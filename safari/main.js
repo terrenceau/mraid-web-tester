@@ -111,3 +111,21 @@ function reorient(form) {
 
     mraidview.reorient();
 }
+
+/* get the query value based on the key */
+function getQueryStringValue (searchKey) {
+    var qs = location.search.substr(1, location.search.length),
+       vQsParts = qs.split('&'),
+       i,
+       vKeyValue,
+       sKey;
+
+       for (i = 0; i < vQsParts.length; i = i + 1) {
+           vKeyValue = vQsParts[i].split('=');
+           sKey = vKeyValue[0];
+           if (searchKey === sKey) {
+               return (vKeyValue[1]);
+           }
+       }
+       return (null);
+}
