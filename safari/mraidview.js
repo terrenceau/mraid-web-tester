@@ -17,7 +17,7 @@ INFO [sms,tel,calendar,storePicture,inlineVideo]
   * (1) buttons on interface call renderAd()  - Flight tab>ad fragment or renderHtmlAd - Flight tab>ad url
 INFO rendering
 INFO creating adWindow
-  *   (.) onload event of new browser window	
+  *   (.) onload event of new browser window    
 INFO adWindow loaded
   * (2) render() calls initAdFrame()
 INFO initializing ad frame  
@@ -52,22 +52,22 @@ INFO mraid.js identification script found
     
     // CONSTANTS ///////////////////////////////////////////////////////////////
     
-	var VERSIONS = mraidview.VERSIONS = {
-		V1  : '1.0',
-		V2  : '2.0'
-	};
-	
-	var PLACEMENTS = mraidview.PLACEMENTS = {
-		UNKNOWN      : 'unknown',
-		
-		INLINE       : 'inline',
-		INTERSTITIAL : 'interstitial'
-	}
-	
+    var VERSIONS = mraidview.VERSIONS = {
+        V1  : '1.0',
+        V2  : '2.0'
+    };
+    
+    var PLACEMENTS = mraidview.PLACEMENTS = {
+        UNKNOWN      : 'unknown',
+        
+        INLINE       : 'inline',
+        INTERSTITIAL : 'interstitial'
+    }
+    
     var STATES = mraidview.STATES = {
         UNKNOWN     :'unknown',
 
-		LOADING		:'loading',
+        LOADING     :'loading',
         DEFAULT     :'default',
         RESIZED     :'resized',
         EXPANDED    :'expanded',
@@ -77,11 +77,11 @@ INFO mraid.js identification script found
     var EVENTS = mraidview.EVENTS = {
         INFO                :'info',
         ORIENTATIONCHANGE   :'orientationChange',
-		
-		READY				:'ready',
+        
+        READY               :'ready',
         ERROR               :'error',
         STATECHANGE         :'stateChange',
- 		VIEWABLECHANGE		:'viewableChange',
+        VIEWABLECHANGE      :'viewableChange',
         SIZECHANGE          :'sizeChange',
     };
     
@@ -90,7 +90,7 @@ INFO mraid.js identification script found
         TEL         :'tel',
         CALENDAR    :'calendar',
         STOREPICTURE:'storePicture',
-		INLINEVIDEO	:'inlineVideo'
+        INLINEVIDEO :'inlineVideo'
     };
     
     // EVENT HANDLING ///////////////////////////////////////////////////////////////
@@ -100,14 +100,16 @@ INFO mraid.js identification script found
     var broadcastEvent = function() {
         var args = new Array(arguments.length);
         for (var i = 0; i < arguments.length; i++) args[i] = arguments[i];
+        
         var event = args.shift();
+            
         for (var key in listeners[event]) {
             var handler = listeners[event][key];
             handler.func.apply(handler.func.scope, args);
         }
     }
-	
-	mraidview.broadcastEvent = broadcastEvent;
+    
+    mraidview.broadcastEvent = broadcastEvent;
     
     mraidview.addEventListener = function(event, listener, scope) {
         var key = String(listener) + String(scope);
@@ -118,7 +120,7 @@ INFO mraid.js identification script found
         }
         map[key] = {scope:(scope?scope:{}),func:listener};
     };
-    
+
     mraidview.removeEventListener = function(event, listener, scope) {
         var key = String(listener) + String(scope);
         var map = listeners[event];
@@ -133,8 +135,8 @@ INFO mraid.js identification script found
     var
         adURI = "",
         adURIFragment = true,
-		adHtml = '',
-		useHtml = false;
+        adHtml = '',
+        useHtml = false;
         adContent = '',
         adWindow = null,
         adWindowAdj = {x:0,y:0},
@@ -162,19 +164,19 @@ INFO mraid.js identification script found
         screenSize = { width:0, height:0 },
         size = { width:0, height:0 },
         defaultPosition = { width:0, height:0, y:0, x:0 },
-		c = { width:0, height:0, y:0, x:0 },
+        c = { width:0, height:0, y:0, x:0 },
         maxSize = { width:0, height:0, x:0, y:0 },
         expandProperties = { width:0, height:0, useCustomClose:false, isModal:false},
         orienationProperties = { allowOrientationChange:true, forceOrientation:'none' },
-		resizeProperties = { width:0, height:0, customClosePosition:'top-right', offsetX:0, offsetY:0, allowOffscreen:true},
+        resizeProperties = { width:0, height:0, customClosePosition:'top-right', offsetX:0, offsetY:0, allowOffscreen:true},
         supports = [],
-		version = VERSIONS.UNKNOWN,
-		placement = PLACEMENTS.UNKNOWN,
-		isViewable = false;
+        version = VERSIONS.UNKNOWN,
+        placement = PLACEMENTS.UNKNOWN,
+        isViewable = false;
         orientation = -1;
     
     // PUBLIC ACCESSOR METHODS ///////////////////////////////////////////////////////////////
-    
+
     mraidview.getAdContent = function() {
         return adContent;
     };
@@ -195,158 +197,159 @@ INFO mraid.js identification script found
     };
     
     mraidview.setMaxAdPosition= function(x, y, width, height) {
-    	maxSize.x = x;
-    	maxSize.y = y;
-    	if (orientation % 180 === 0) {
-    		maxSize.width = width;
-        	maxSize.height = height;	
-    	} else {
-    		maxSize.width = height;
-        	maxSize.height = width;
-    	}
+        maxSize.x = x;
+        maxSize.y = y;
+        if (orientation % 180 === 0) {
+            maxSize.width = width;
+            maxSize.height = height;    
+        } else {
+            maxSize.width = height;
+            maxSize.height = width;
+        }
     };
     
     mraidview.setAdURI = function(uri, fragment) {
         adURI = uri;
         adURIFragment = (fragment)?true:false;
     };
-	
-	mraidview.setUseHtml = function(useThisHtml, html) {
-		useHtml = useThisHtml;
-		if (useHtml) {
-			adHtml = html;
-		} else {
-			adHtml = '';
-		}	
-	}
+    
+    mraidview.setUseHtml = function(useThisHtml, html) {
+        useHtml = useThisHtml;
+        if (useHtml) {
+            adHtml = html;
+        } else {
+            adHtml = '';
+        }   
+    };
     
     mraidview.resetSupports = function() {
-		supports = [];
+        supports = [];
     };
     
     mraidview.setSupports = function(feature, doesSupport) {
-		if (doesSupport) {
-			supports.push(feature);
-			broadcastEvent(EVENTS.INFO, stringify(supports));
-		}
+        if (doesSupport) {
+            supports.push(feature);
+            broadcastEvent(EVENTS.INFO, stringify(supports));
+        }
     };
     
     mraidview.setVersion = function(elements) {
-		var v = '';
-		for (var i=0; i<elements.length; i++) {
-			if (elements[i].checked) v = elements[i].value;
-		}
-		mraidview.version = v;
-	    broadcastEvent(EVENTS.INFO, 'MRAID version ' + v);
+        var v = '';
+        for (var i=0; i<elements.length; i++) {
+            if (elements[i].checked) v = elements[i].value;
+        }
+        mraidview.version = v;
+        broadcastEvent(EVENTS.INFO, 'MRAID version ' + v);
     };
-	
+    
     mraidview.setPlacement = function(elements) {
-		var p = '';
-		for (var i=0; i<elements.length; i++) {
-			if (elements[i].checked) p = elements[i].value;
-		}
-		mraidview.placement = p;
-		placement = p;
-	    broadcastEvent(EVENTS.INFO, 'placement type ' + p);
+        var p = '';
+        for (var i=0; i<elements.length; i++) {
+            if (elements[i].checked) p = elements[i].value;
+        }
+        mraidview.placement = p;
+        placement = p;
+        broadcastEvent(EVENTS.INFO, 'placement type ' + p);
     };
     
     mraidview.setOffScreen  = function(value) {
-    	offscreen = value;
+        offscreen = value;
     };
-	
+    
     mraidview.rotateOrientation = function() {
-    	mraidview.setOrientation(orientation = (orientation + 90) % 180);
+        mraidview.setOrientation(orientation = (orientation + 90) % 180);
     };
     
     mraidview.setOrientation = function (degree, forceOrientation) {
-    	if (degree%90 !== 0) return;
-    	if (!adWindow || !adWindow.document) return;
-    	var body = adWindow.document.getElementsByTagName('body')[0],
-    		maxDiv = adWindow.document.getElementById('maxArea');
-    	
-    	maxDiv.style['-webkit-transform'] = '';
-    	
-    	if (degree%180 === 0) { // Portrait
-    		adWindow.resizeTo(defaultWindowSize.outerWidth, defaultWindowSize.outerHeight);
-    		
-			body.style.width = Math.min(screenSize.width, screenSize.height) + 'px';
-			body.style.height = Math.max(screenSize.width, screenSize.height) + 'px';
-			
-    		if (orientationProperties.forceOrientation === 'landscape' && (!orientationProperties.allowOrientationChange || forceOrientation)
-    			&& (state === STATES.EXPANDED || placement === PLACEMENTS.INTERSTITIAL)) {
-    				
-    			maxDiv.style['-webkit-transform'] = 'rotate(90deg)';
-    			var dx = (maxSize.height - maxSize.width)/2;   			
-    			setMaxAdArea({'width':maxSize.height,'height':maxSize.width,'x':maxSize.y-dx, 'y':maxSize.x+dx});
-    			if (state === STATES.EXPANDED) {
-    				setAdResizeContainerStyle((adExpandedContainer || adResizeContainer), {'width':maxSize.height,'height':maxSize.width,'x':0, 'y':0});
-    			} else if (placement === PLACEMENTS.INTERSTITIAL) {
-    				adContainer.style.width = defaultPosition.height + 'px';
-			        adContainer.style.height = defaultPosition.width + 'px';
-			        adContainer.style.top = defaultPosition.y + 'px';
-			        adContainer.style.left = defaultPosition.x + 'px';
-    			}
-    			setAdOrientation(90);
-    		} else {
-    			setMaxAdArea(maxSize);
-    			if (state === STATES.EXPANDED) {
-    				setAdResizeContainerStyle((adExpandedContainer || adResizeContainer), {'width':maxSize.width,'height':maxSize.height,'x':0, 'y':0});
-    			} else if (placement === PLACEMENTS.INTERSTITIAL) {
-    				setContainerDefaultPosition();
-    			}
-    			setAdOrientation(0);
-    		}
-    	} else { // Landscape
-    		var w = (defaultWindowSize.outerWidth - defaultWindowSize.innerWidth) + defaultWindowSize.innerHeight,
-    			h = (defaultWindowSize.outerHeight - defaultWindowSize.innerHeight) + defaultWindowSize.innerWidth;
-    		adWindow.resizeTo(w, h);
-    		
-			body.style.height = Math.min(screenSize.width, screenSize.height) + 'px';
-			body.style.width = Math.max(screenSize.width, screenSize.height) + 'px';
-			
-			if (orientationProperties.forceOrientation === 'portrait' && (!orientationProperties.allowOrientationChange || forceOrientation)
-				&& (state === STATES.EXPANDED || placement === PLACEMENTS.INTERSTITIAL)) {
-				
-				maxDiv.style['-webkit-transform'] = 'rotate(90deg)';
-				var dx = (maxSize.height - maxSize.width)/2;
-    			setMaxAdArea({'width':maxSize.width,'height':maxSize.height,'x':maxSize.y+dx, 'y':maxSize.x-dx});
-    			if (state === STATES.EXPANDED) {
-    				setAdResizeContainerStyle((adExpandedContainer || adResizeContainer), {'width':maxSize.width,'height':maxSize.height,'x':0, 'y':0});
-    			} else if (placement === PLACEMENTS.INTERSTITIAL) {
-			    	setContainerDefaultPosition();
-    			}
-    			setAdOrientation(0);
-    		} else {
-    			setMaxAdArea({'width':maxSize.height,'height':maxSize.width,'x':maxSize.x, 'y':maxSize.y});
-    			if (state === STATES.EXPANDED) {
-    				setAdResizeContainerStyle((adExpandedContainer || adResizeContainer), {'width':maxSize.height,'height':maxSize.width,'x':0, 'y':0});
-    			} else if (placement === PLACEMENTS.INTERSTITIAL) {
-    				adContainer.style.width = defaultPosition.height + 'px';
-			        adContainer.style.height = defaultPosition.width + 'px';
-			        adContainer.style.top = defaultPosition.y + 'px';
-			        adContainer.style.left = defaultPosition.x + 'px';
-    			}
-    			setAdOrientation(90);
-    		}
-    	}
-    	if (offscreen) {
-    		adWindow.setNavigation();
-    	}
+        if (degree%90 !== 0) return;
+        if (!adWindow || !adWindow.document) return;
+        var body = adWindow.document.getElementsByTagName('body')[0],
+            maxDiv = adWindow.document.getElementById('maxArea');
+        
+
+        maxDiv.style['-webkit-transform'] = '';
+        
+        if (degree%180 === 0) { // Portrait
+            adWindow.resizeTo(defaultWindowSize.outerWidth, defaultWindowSize.outerHeight);
+            
+            body.style.width = Math.min(screenSize.width, screenSize.height) + 'px';
+            body.style.height = Math.max(screenSize.width, screenSize.height) + 'px';
+            
+            if (orientationProperties.forceOrientation === 'landscape' && (!orientationProperties.allowOrientationChange || forceOrientation)
+                && (state === STATES.EXPANDED || placement === PLACEMENTS.INTERSTITIAL)) {
+                    
+                maxDiv.style['-webkit-transform'] = 'rotate(90deg)';
+                var dx = (maxSize.height - maxSize.width)/2;
+                updateAdSize({'width':maxSize.height,'height':maxSize.width,'x':maxSize.y-dx, 'y':maxSize.x+dx});
+                if (state === STATES.EXPANDED) {
+                    setAdResizeContainerStyle((adExpandedContainer || adResizeContainer), {'width':maxSize.height,'height':maxSize.width,'x':0, 'y':0});
+                } else if (placement === PLACEMENTS.INTERSTITIAL) {
+                    adContainer.style.width = defaultPosition.height + 'px';
+                    adContainer.style.height = defaultPosition.width + 'px';
+                    adContainer.style.top = defaultPosition.y + 'px';
+                    adContainer.style.left = defaultPosition.x + 'px';
+                }
+                setAdOrientation(90);
+            } else {
+                updateAdSize(maxSize);
+                if (state === STATES.EXPANDED) {
+                    setAdResizeContainerStyle((adExpandedContainer || adResizeContainer), {'width':maxSize.width,'height':maxSize.height,'x':0, 'y':0});
+                } else if (placement === PLACEMENTS.INTERSTITIAL) {
+                    setContainerDefaultPosition();
+                }
+                setAdOrientation(0);
+            }
+        } else { // Landscape
+            var w = (defaultWindowSize.outerWidth - defaultWindowSize.innerWidth) + defaultWindowSize.innerHeight,
+                h = (defaultWindowSize.outerHeight - defaultWindowSize.innerHeight) + defaultWindowSize.innerWidth;
+            adWindow.resizeTo(w, h);
+            
+            body.style.height = Math.min(screenSize.width, screenSize.height) + 'px';
+            body.style.width = Math.max(screenSize.width, screenSize.height) + 'px';
+            
+            if (orientationProperties.forceOrientation === 'portrait' && (!orientationProperties.allowOrientationChange || forceOrientation)
+                && (state === STATES.EXPANDED || placement === PLACEMENTS.INTERSTITIAL)) {
+                
+                maxDiv.style['-webkit-transform'] = 'rotate(90deg)';
+                var dx = (maxSize.height - maxSize.width)/2;
+                updateAdSize({'width':maxSize.width,'height':maxSize.height,'x':maxSize.y+dx, 'y':maxSize.x-dx});
+                if (state === STATES.EXPANDED) {
+                    setAdResizeContainerStyle((adExpandedContainer || adResizeContainer), {'width':maxSize.width,'height':maxSize.height,'x':0, 'y':0});
+                } else if (placement === PLACEMENTS.INTERSTITIAL) {
+                    setContainerDefaultPosition();
+                }
+                setAdOrientation(0);
+            } else {
+                updateAdSize({'width':maxSize.height,'height':maxSize.width,'x':maxSize.x, 'y':maxSize.y})
+                if (state === STATES.EXPANDED) {
+                    setAdResizeContainerStyle((adExpandedContainer || adResizeContainer), {'width':maxSize.height,'height':maxSize.width,'x':0, 'y':0});
+                } else if (placement === PLACEMENTS.INTERSTITIAL) {
+                    adContainer.style.width = defaultPosition.height + 'px';
+                    adContainer.style.height = defaultPosition.width + 'px';
+                    adContainer.style.top = defaultPosition.y + 'px';
+                    adContainer.style.left = defaultPosition.x + 'px';
+                }
+                setAdOrientation(90);
+            }
+        }
+        if (offscreen) {
+            adWindow.setNavigation();
+        }
     };
     
     mraidview.setDefaultWindowSize = function () {
-		defaultWindowSize = {};
-		if (orientation % 180 === 0) {
-	    	defaultWindowSize.outerWidth = adWindow.outerWidth;
-		    defaultWindowSize.innerWidth = adWindow.innerWidth;
-		    defaultWindowSize.outerHeight = adWindow.outerHeight;
-		    defaultWindowSize.innerHeight = adWindow.innerHeight;
-		} else {
-		    defaultWindowSize.innerWidth = adWindow.innerHeight;
-		    defaultWindowSize.innerHeight = adWindow.innerWidth;
-			defaultWindowSize.outerWidth = defaultWindowSize.innerWidth + (adWindow.outerWidth - adWindow.innerWidth); // + (adWindow.outerHeight - adWindow.innerHeight);
-		    defaultWindowSize.outerHeight = defaultWindowSize.innerHeight + (adWindow.outerHeight - adWindow.innerHeight);
-		}
+        defaultWindowSize = {};
+        if (orientation % 180 === 0) {
+            defaultWindowSize.outerWidth = adWindow.outerWidth;
+            defaultWindowSize.innerWidth = adWindow.innerWidth;
+            defaultWindowSize.outerHeight = adWindow.outerHeight;
+            defaultWindowSize.innerHeight = adWindow.innerHeight;
+        } else {
+            defaultWindowSize.innerWidth = adWindow.innerHeight;
+            defaultWindowSize.innerHeight = adWindow.innerWidth;
+            defaultWindowSize.outerWidth = defaultWindowSize.innerWidth + (adWindow.outerWidth - adWindow.innerWidth); // + (adWindow.outerHeight - adWindow.innerHeight);
+            defaultWindowSize.outerHeight = defaultWindowSize.innerHeight + (adWindow.outerHeight - adWindow.innerHeight);
+        }
     };
     
     // PUBLIC ACTION METHODS ///////////////////////////////////////////////////////////////
@@ -359,33 +362,33 @@ INFO mraid.js identification script found
             adWindow = window.open((offscreen) ? 'safari/device-pages.html': 'safari/device.html', 'adWindow', 'left=1000,width='+screenSize.width+',height='+screenSize.height+',menubar=no,location=no,toolbar=no,status=no,personalbar=no,resizable=no,scrollbars=no,chrome=no,all=no');
             
             adWindow.onload = function() {
-            	broadcastEvent(EVENTS.INFO, 'adWindow loaded');
-            	
+                broadcastEvent(EVENTS.INFO, 'adWindow loaded');
+                
                 adWindowAdj.x = window.outerWidth - screenSize.width;
                 adWindowAdj.y = window.outerHeight - screenSize.height;
-            	adWindow.document.getElementsByTagName('body')[0].style.width = screenSize.width + 'px';
-            	adWindow.document.getElementsByTagName('body')[0].style.height = screenSize.height + 'px';
+                adWindow.document.getElementsByTagName('body')[0].style.width = screenSize.width + 'px';
+                adWindow.document.getElementsByTagName('body')[0].style.height = screenSize.height + 'px';
                 adContainer = adWindow.document.getElementById('adContainer');
                 adContainer.addEventListener('ViewableChange', function(e) {
-                	changeViewable();
+                    changeViewable();
                 });
                 adResizeContainer = adWindow.document.getElementById('adResizeContainer');
                 adFrame = adWindow.document.getElementById('adFrame');
                 closeEventRegion = adWindow.document.getElementById('closeEventRegion');
                 closeEventRegion.addEventListener('click', closeAd);
-	            
-	            window.setTimeout(function () { //timeout needed to get the actual window size
-		            mraidview.setDefaultWindowSize();
-		            if (offscreen) {
-			            adWindow.setNavigation();
-		            }
-	            }, 250);
+                
+                window.setTimeout(function () { //timeout needed to get the actual window size
+                    mraidview.setDefaultWindowSize();
+                    if (offscreen) {
+                        adWindow.setNavigation();
+                    }
+                }, 250);
                 loadAd();
             };
         } else {
-        	adWindow.close();
-        	adWindow = null;
-        	 mraidview.render(); 
+            adWindow.close();
+            adWindow = null;
+             mraidview.render(); 
         }
     };
     
@@ -433,122 +436,120 @@ INFO mraid.js identification script found
         previousState = null;
         state = STATES.DEFAULT;
         expandProperties = { width:maxSize.width, height:maxSize.height, useCustomClose:false, isModal:false};
-		resizeProperties = { width:0, height:0, customClosePosition:'top-right', offsetX:0, offsetY:0, allowOffscreen:true};
-		orientationProperties = {allowOrientationChange:true, forceOrientation:'none'};
+        resizeProperties = { width:0, height:0, customClosePosition:'top-right', offsetX:0, offsetY:0, allowOffscreen:true};
+        orientationProperties = {allowOrientationChange:true, forceOrientation:'none'};
         orientation = (screenSize.width >= screenSize.height)?90:0;
-		version = VERSIONS.UNKNOWN;
-		currentPosition = { 'x':0, 'y':0, 'width':defaultPosition.width, 'height':defaultPosition.height };
-		isViewable = false;
+        version = VERSIONS.UNKNOWN;
+        currentPosition = { 'x':0, 'y':0, 'width':defaultPosition.width, 'height':defaultPosition.height };
+        isViewable = false;
     };
     
-	var showMraidCloseButton = function(toggle) {
-		var	closeDiv = closeEventRegion;
-			
-		closeDiv.style.position = 'absolute';
-		
-		if (toggle) {
-			closeDiv.style.top = '';
-			closeDiv.style.left = '';
-			closeDiv.style.bottom = '';
-			closeDiv.style.right = '';
-			closeDiv.style.width = '50px';
-			closeDiv.style.height = '50px';
-			closeDiv.style.display = 'none';
-			closeDiv.style.zIndex = getHighestZindex()+2;
-			closeDiv.style.cursor = 'pointer';
-			closeDiv.style.background = (expandProperties.useCustomClose) ? '': 'url("close.png") no-repeat 8px 8px';
-		
-			if (state === STATES.RESIZED) {
-				closeDiv.style.background = '';
-				
-				var pos = resizeProperties.customClosePosition;
-				if (/top/i.test(pos)) {
-					closeDiv.style.top = '0px';
-				} else if (/bottom/i.test(pos)) {
-					closeDiv.style.bottom = '0px';
-				} else {
-					closeDiv.style.top = [(resizeProperties.height - 50 ) / 2, 'px'].join('');
-				}
-				
-				if (/left/i.test(pos)) {
-					closeDiv.style.left = '0px';
-				} else if (/right/i.test(pos)) {
-					closeDiv.style.right = '0px';
-				} else {
-					closeDiv.style.left = [(resizeProperties.width - 50 ) / 2, 'px'].join('');
-				}
-			} else {
-				closeDiv.style.top = '0';
-				closeDiv.style.right = '0';
-			}
-			
-			closeDiv.style.display = 'block';		
-			broadcastEvent (EVENTS.INFO, 'adding MRAID close button');
-		} else {
-			closeDiv.style.display = 'none';
-			broadcastEvent (EVENTS.INFO, 'removing MRAID close button');
-		}
-		
-	};
-	
+    var showMraidCloseButton = function(toggle) {
+        var closeDiv = closeEventRegion;
+        closeDiv.style.position = 'absolute';
+        
+        if (toggle) {
+            closeDiv.style.top = '';
+            closeDiv.style.left = '';
+            closeDiv.style.bottom = '';
+            closeDiv.style.right = '';
+            closeDiv.style.width = '50px';
+            closeDiv.style.height = '50px';
+            closeDiv.style.display = 'none';
+            closeDiv.style.zIndex = getHighestZindex()+2;
+            closeDiv.style.cursor = 'pointer';
+            closeDiv.style.background = (expandProperties.useCustomClose) ? '': 'url("close.png") no-repeat 8px 8px';
+        
+            if (state === STATES.RESIZED) {
+                closeDiv.style.background = '';
+                
+                var pos = resizeProperties.customClosePosition;
+                if (/top/i.test(pos)) {
+                    closeDiv.style.top = '0px';
+                } else if (/bottom/i.test(pos)) {
+                    closeDiv.style.bottom = '0px';
+                } else {
+                    closeDiv.style.top = [(resizeProperties.height - 50 ) / 2, 'px'].join('');
+                }
+                
+                if (/left/i.test(pos)) {
+                    closeDiv.style.left = '0px';
+                } else if (/right/i.test(pos)) {
+                    closeDiv.style.right = '0px';
+                } else {
+                    closeDiv.style.left = [(resizeProperties.width - 50 ) / 2, 'px'].join('');
+                }
+            } else {
+                closeDiv.style.top = '0';
+                closeDiv.style.right = '0';
+            }
+            
+            closeDiv.style.display = 'block';       
+            broadcastEvent (EVENTS.INFO, 'adding MRAID close button');
+        } else {
+            closeDiv.style.display = 'none';
+            broadcastEvent (EVENTS.INFO, 'removing MRAID close button');
+        }
+    };
+    
     var loadAd = function() {
         reset();
         
         if (adFrame.attachEvent) {
-			adFrame.attachEvent("onload", initAdFrame); 
-		} else {
-			adFrame.onload = initAdFrame; 
-		}
+            adFrame.attachEvent("onload", initAdFrame); 
+        } else {
+            adFrame.onload = initAdFrame; 
+        }
         
         setContainerDefaultPosition(defaultPosition);
         
-		if (useHtml) {
-			var doc = adFrame.contentWindow.document;
-			doc.body.innerHTML = '<body style="margin: 0px;"><div id="_mraidCloseDiv" onclick="mraid.close()"></div>'+adHtml+'</body>';
-			doc.body.style.margin = '0px';
-			
-			var scripts = doc.body.getElementsByTagName("script");
-			var scriptsCount=scripts.length;
-			for (var i=0; i<scriptsCount; i++) {
-				var script = doc.createElement('script');
-				script.type = "text/javascript";
-				if (scripts[i].src !== '') {
-					script.src = scripts[i].src;
-				} else {
-					script.text = scripts[i].text;
-				}
-				doc.body.appendChild(script);
-			}
-			initAdFrame.call(adFrame);
-		} else {
-			if (adURIFragment) {
-				document.cookie = 'uri='+encodeURIComponent(adURI);
-				adFrame.contentWindow.location.replace('ad.html');
-			} else {
-				adFrame.contentWindow.location.replace(adURI);
-			}
-		}
-    	
-    	if (orientation%180 === 0){
-	      	setMaxAdArea(maxSize);
-    	} else {
-    		setMaxAdArea({'width':maxSize.height, 'height': maxSize.width, 'x': maxSize.x, 'y': maxSize.y});
-    	}
+        if (useHtml) {
+            var doc = adFrame.contentWindow.document;
+            doc.body.innerHTML = '<body style="margin: 0px;"><div id="_mraidCloseDiv" onclick="mraid.close()"></div>'+adHtml+'</body>';
+            doc.body.style.margin = '0px';
+            
+            var scripts = doc.body.getElementsByTagName("script");
+            var scriptsCount=scripts.length;
+            for (var i=0; i<scriptsCount; i++) {
+                var script = doc.createElement('script');
+                script.type = "text/javascript";
+                if (scripts[i].src !== '') {
+                    script.src = scripts[i].src;
+                } else {
+                    script.text = scripts[i].text;
+                }
+                doc.body.appendChild(script);
+            }
+            initAdFrame.call(adFrame);
+        } else {
+            if (adURIFragment) {
+                document.cookie = 'uri='+encodeURIComponent(adURI);
+                adFrame.contentWindow.location.replace('ad.html');
+            } else {
+                adFrame.contentWindow.location.replace(adURI);
+            }
+        }
+        
+        if (orientation%180 === 0){
+            setMaxAdArea(maxSize);
+        } else {
+            setMaxAdArea({'width':maxSize.height, 'height': maxSize.width, 'x': maxSize.x, 'y': maxSize.y});
+        }
     };
     
     var insertAdURI = function(newAdFrame, uri) {
         if (newAdFrame.attachEvent) {
-			newAdFrame.attachEvent("onload", initAdFrame);
-		} else {
-			newAdFrame.onload = initAdFrame; 
-		}
-		        
-		if (adURIFragment) {
-			document.cookie = 'uri='+encodeURIComponent(uri);
-			newAdFrame.contentWindow.location.replace('ad.html');
-		} else {
-			newAdFrame.contentWindow.location.replace(uri);
-		}
+            newAdFrame.attachEvent("onload", initAdFrame);
+        } else {
+            newAdFrame.onload = initAdFrame; 
+        }
+                
+        if (adURIFragment) {
+            document.cookie = 'uri='+encodeURIComponent(uri);
+            newAdFrame.contentWindow.location.replace('ad.html');
+        } else {
+            newAdFrame.contentWindow.location.replace(uri);
+        }
     };
     
     var setContainerDefaultPosition = function() {
@@ -559,25 +560,25 @@ INFO mraid.js identification script found
     };
     
     var resizeAd = function() {
-    	adContainer.style.overflow = 'visible';
-    	var arcs = adResizeContainer.style; 
-    	arcs.position = 'absolute';
-    	arcs.top = [resizeProperties.offsetY, 'px'].join('');
-    	arcs.left = [resizeProperties.offsetX, 'px'].join('');
-    	arcs.width = [resizeProperties.width, 'px'].join('');
-    	arcs.height = [resizeProperties.height, 'px'].join('');
-    	arcs['z-index'] = getHighestZindex()+1;
-    	currentPosition.x = defaultPosition.x + resizeProperties.offsetX;
-    	currentPosition.y = defaultPosition.y + resizeProperties.offsetY;
-    	currentPosition.width = resizeProperties.width;
-    	currentPosition.height = resizeProperties.height;
-    	size.width = currentPosition.width =  resizeProperties.width;
-    	size.height = currentPosition.height =  resizeProperties.height;
-    	adBridge.pushChange({ 'currentPosition': currentPosition, 'size': size});
+        adContainer.style.overflow = 'visible';
+        var arcs = adResizeContainer.style; 
+        arcs.position = 'absolute';
+        arcs.top = [resizeProperties.offsetY, 'px'].join('');
+        arcs.left = [resizeProperties.offsetX, 'px'].join('');
+        arcs.width = [resizeProperties.width, 'px'].join('');
+        arcs.height = [resizeProperties.height, 'px'].join('');
+        arcs['z-index'] = getHighestZindex()+1;
+        currentPosition.x = defaultPosition.x + resizeProperties.offsetX;
+        currentPosition.y = defaultPosition.y + resizeProperties.offsetY;
+        currentPosition.width = resizeProperties.width;
+        currentPosition.height = resizeProperties.height;
+        size.width = currentPosition.width =  resizeProperties.width;
+        size.height = currentPosition.height =  resizeProperties.height;
+        adBridge.pushChange({ 'currentPosition': currentPosition, 'size': size});
     };
     
     var setMaxAdArea = function (size) {
-    	var maxDiv = adWindow.document.getElementById('maxArea');
+        var maxDiv = adWindow.document.getElementById('maxArea');
         maxDiv.style.width = [size.width, 'px'].join('');
         maxDiv.style.height = [size.height, 'px'].join('');
         maxDiv.style.position = 'absolute';
@@ -585,202 +586,210 @@ INFO mraid.js identification script found
         maxDiv.style.top = [size.y, 'px'].join('');
         !adBridge || adBridge.pushChange({'maxSize': size});
     };
-    
+
+    var setExpandProperties = function(size){
+        !adBridge || adBridge.pushChange({'expandProperties': size});
+    };
+
     var setAdResizeContainerStyle = function (resizeContainer, _maxSize) {
-    	var acs = resizeContainer.style;
-    	if (mraidview.version == VERSIONS.V2) {
-    		if (adExpandedContainer) {
-    			acs.left = [0, 'px'].join('');
-				acs.top = [0, 'px'].join('');
-    		} else {
-    			acs.left = ['-', defaultPosition.x, 'px'].join('');
-				acs.top = ['-', defaultPosition.y, 'px'].join('');
-    		}
-			
-			acs.width = [_maxSize.width, 'px'].join('');
-			acs.height = [_maxSize.height, 'px'].join('');
-			currentPosition.width = size.width = _maxSize.width;
-			currentPosition.height = size.height = _maxSize.height;
-    	} else if (mraidview.version === VERSIONS.V1) {
-    		var left = _maxSize.x + (_maxSize.width - expandProperties.width)/2,
-    			top = _maxSize.y + (_maxSize.height - expandProperties.height)/2;
-    			
-    		acs.left = [0, 'px'].join('');
-			acs.top = [0, 'px'].join('');
-			acs.width = [expandProperties.width, 'px'].join(''); 
-			acs.height = [expandProperties.height, 'px'].join('');
-			currentPosition.height = size.height = expandProperties.height;
-			currentPosition.width = size.width = expandProperties.width;
-    	}
+        var acs = resizeContainer.style;
+        if (mraidview.version == VERSIONS.V2) {
+            if (adExpandedContainer) {
+                acs.left = [0, 'px'].join('');
+                acs.top = [0, 'px'].join('');
+            } else {
+                acs.left = ['-', defaultPosition.x, 'px'].join('');
+                acs.top = ['-', defaultPosition.y, 'px'].join('');
+            }
+            
+            acs.width = [_maxSize.width, 'px'].join('');
+            acs.height = [_maxSize.height, 'px'].join('');
+            currentPosition.width = size.width = _maxSize.width;
+            currentPosition.height = size.height = _maxSize.height;
+        } else if (mraidview.version === VERSIONS.V1) {
+            var left = _maxSize.x + (_maxSize.width - expandProperties.width)/2,
+                top = _maxSize.y + (_maxSize.height - expandProperties.height)/2;
+                
+            acs.left = [0, 'px'].join('');
+            acs.top = [0, 'px'].join('');
+            acs.width = [expandProperties.width, 'px'].join(''); 
+            acs.height = [expandProperties.height, 'px'].join('');
+            currentPosition.height = size.height = expandProperties.height;
+            currentPosition.width = size.width = expandProperties.width;
+        }
     };
     
     var resetDefaultSize = function () {
-    	adResizeContainer.style.overflow = 'hidden';
-    	var arcs = adResizeContainer.style; 
-    	arcs.position = 'static';
-    	arcs.top = '0';
-    	arcs.left = '0';
-    	arcs.width = '100%';
-    	arcs.height = '100%';
-    	adContainer['z-index'] = 0;
-    	size.width = currentPosition.width =  defaultPosition.width;
-    	size.height = currentPosition.height =  defaultPosition.height;
-    	adBridge.pushChange({'size': size});
+        adResizeContainer.style.overflow = 'hidden';
+        var arcs = adResizeContainer.style; 
+        arcs.position = 'static';
+        arcs.top = '0';
+        arcs.left = '0';
+        arcs.width = '100%';
+        arcs.height = '100%';
+        adContainer['z-index'] = 0;
+        size.width = currentPosition.width =  defaultPosition.width;
+        size.height = currentPosition.height =  defaultPosition.height;
+        adBridge.pushChange({'size': size});
     };
     
     var getSupports = function(feature) {
         for (var i=0; i<supports.length; i++) {
-			if (supports[i] == feature) return true;
-		}
+            if (supports[i] == feature) return true;
+        }
         return false;
     };
     
     var getHighestZindex = function() {
-    	var zi = 0,
-    		eles = document.getElementsByTagName('*');
-    	
-    	for (var i = 0, ele; ele = eles[i]; i++){
-    		if (ele.style['z-index'] && parseInt(ele.style['z-index']) > zi) {
-    			zi = parseInt(ele.style['z-index']);
-    		}
-    	}
-    	return zi;
+        var zi = 0,
+            eles = document.getElementsByTagName('*');
+        
+        for (var i = 0, ele; ele = eles[i]; i++){
+            if (ele.style['z-index'] && parseInt(ele.style['z-index']) > zi) {
+                zi = parseInt(ele.style['z-index']);
+            }
+        }
+        return zi;
     };
     
     var endExpanded = function() {
-    	if (adExpandedContainer) {
-    		adResizeContainer.appendChild(closeEventRegion);
-    		adExpandedContainer.parentNode.removeChild(adExpandedContainer);
-    		adExpandedContainer = null;
-    		adFrameExpanded = null;
-    		
-    	} else {
-    		resetDefaultSize();
-    	}
-    	mraidview.setOrientation(orientation);
+        if (adExpandedContainer) {
+            adResizeContainer.appendChild(closeEventRegion);
+            adExpandedContainer.parentNode.removeChild(adExpandedContainer);
+            adExpandedContainer = null;
+            adFrameExpanded = null;
+            
+        } else {
+            resetDefaultSize();
+        }
+        mraidview.setOrientation(orientation);
     };
     
     var setResizeProperties = function(properties) {
-    	if (!properties || !properties.width || !properties.height) {
-    		broadcastEvent(EVENTS.ERROR, 'missing properties for setResizeProperties' , 'setResizeProperties');
-    	}
-    	
-    	var regex = new RegExp('^(((top|bottom)-(left|right|center))|center)$', 'i');
-		if (!regex.test(resizeProperties.customClosePosition)) {
-			resizeProperties.customClosePosition = 'top-left';
-		} 
-    	
-    	if (!properties.allowOffscreen) {
-    		if (properties.width > maxSize.width || properties.height > maxSize.height) {
-    			broadcastEvent(EVENTS.ERROR, 'invalid properties for setResizeProperties' , 'setResizeProperties');
-    		} else {
-    			var posX = Math.max(0, Math.min(maxSize.width - properties.width, defaultPosition.x + properties.offsetX)),
-	    			posY = Math.max(0, Math.min(maxSize.height - properties.height, defaultPosition.y + properties.offsetY));
-	    			
-    			properties.offsetX = posX - defaultPosition.x;
-    			properties.offsetY = posY - defaultPosition.y;
-    			
-    			setResizePropertyValues(properties);
-    		}
-    	} else {
-    		var pos = properties.customClosePosition,
-    			closeOffsetX = 0,
-    			closeOffsetY = 0,
-    			closeTotalPositionX = 0,
-    			closeTotalPositionY = 0;
-    			
-			if (/top/i.test(pos)) {
-				closeOffsetY = 0;
-			} else if (/bottom/i.test(pos)) {
-				closeOffsetY = properties.height-50;
-			} else {
-				closeOffsetY = properties.height/2-25;
-			}
-			
-			if (/left/i.test(pos)) {
-				closeOffsetX = 0;
-			} else if (/right/i.test(pos)) {
-				closeOffsetX = properties.width-50;
-			} else {
-				closeOffsetX = properties.width/2-25;
-			}
-			
-			closeTotalPositionX = defaultPosition.x + properties.offsetX + closeOffsetX;
-			closeTotalPositionY = defaultPosition.y + properties.offsetY + closeOffsetY;
-			
-			if (closeTotalPositionX < 0 ||
-				closeTotalPositionX > maxSize.width - 50 || 
-				closeTotalPositionY < 0 ||
-				closeTotalPositionY > maxSize.height - 50) {
-	
-				broadcastEvent(EVENTS.ERROR, 'invalid properties for setResizeProperties' , 'setResizeProperties');					
-			} else {
-		    	setResizePropertyValues(properties); 
-			}
-    	}
-    	adBridge.pushChange({'resizeProperties':resizeProperties});
+        if (!properties || !properties.width || !properties.height) {
+            broadcastEvent(EVENTS.ERROR, 'missing properties for setResizeProperties' , 'setResizeProperties');
+        }
+        
+        var regex = new RegExp('^(((top|bottom)-(left|right|center))|center)$', 'i');
+        if (!regex.test(resizeProperties.customClosePosition)) {
+            resizeProperties.customClosePosition = 'top-left';
+        } 
+        
+        if (!properties.allowOffscreen) {
+            if (properties.width > maxSize.width || properties.height > maxSize.height) {
+                broadcastEvent(EVENTS.ERROR, 'invalid properties for setResizeProperties' , 'setResizeProperties');
+            } else {
+                var posX = Math.max(0, Math.min(maxSize.width - properties.width, defaultPosition.x + properties.offsetX)),
+                    posY = Math.max(0, Math.min(maxSize.height - properties.height, defaultPosition.y + properties.offsetY));
+                    
+                properties.offsetX = posX - defaultPosition.x;
+                properties.offsetY = posY - defaultPosition.y;
+                
+                setResizePropertyValues(properties);
+            }
+        } else {
+            var pos = properties.customClosePosition,
+                closeOffsetX = 0,
+                closeOffsetY = 0,
+                closeTotalPositionX = 0,
+                closeTotalPositionY = 0;
+                
+            if (/top/i.test(pos)) {
+                closeOffsetY = 0;
+            } else if (/bottom/i.test(pos)) {
+                closeOffsetY = properties.height-50;
+            } else {
+                closeOffsetY = properties.height/2-25;
+            }
+            
+            if (/left/i.test(pos)) {
+                closeOffsetX = 0;
+            } else if (/right/i.test(pos)) {
+                closeOffsetX = properties.width-50;
+            } else {
+                closeOffsetX = properties.width/2-25;
+            }
+            
+            closeTotalPositionX = defaultPosition.x + properties.offsetX + closeOffsetX;
+            closeTotalPositionY = defaultPosition.y + properties.offsetY + closeOffsetY;
+            
+            if (closeTotalPositionX < 0 ||
+                closeTotalPositionX > maxSize.width - 50 || 
+                closeTotalPositionY < 0 ||
+                closeTotalPositionY > maxSize.height - 50) {
+    
+                broadcastEvent(EVENTS.ERROR, 'invalid properties for setResizeProperties' , 'setResizeProperties');                 
+            } else {
+                setResizePropertyValues(properties); 
+            }
+        }
+        adBridge.pushChange({'resizeProperties':resizeProperties});
     };
     
     var setOrientationProperties = function (properties) {
-    	if (!properties) return; 
-    	if (properties.forceOrientation) {
-    		orientationProperties.forceOrientation = properties.forceOrientation;
-    		mraidview.setOrientation(orientation, true);
-    	}
-    	
-    	if (typeof(properties.allowOrientationChange) === 'boolean') {
-    		orientationProperties.allowOrientationChange = properties.allowOrientationChange;
-    	}
+        if (!properties) return; 
+        if (properties.forceOrientation) {
+            orientationProperties.forceOrientation = properties.forceOrientation;
+            mraidview.setOrientation(orientation, true);
+        }
+        
+        if (typeof(properties.allowOrientationChange) === 'boolean') {
+            orientationProperties.allowOrientationChange = properties.allowOrientationChange;
+        }
     };
     
     var setResizePropertyValues = function(properties) {
-   		for (var property in resizeProperties) {
-   			if (properties && typeof (properties[property]) !== 'undefined'  && properties[property] !== '') 
-   				resizeProperties[property] = properties[property];
-   		}
+        for (var property in resizeProperties) {
+            if (properties && typeof (properties[property]) !== 'undefined'  && properties[property] !== '') 
+                resizeProperties[property] = properties[property];
+        }
     };
     
     var closeAd = function () {
-    	showMraidCloseButton(false);
-		if (state === STATES.DEFAULT) {
-			adBridge.broadcastEvent('hide');
-			state = STATES.HIDDEN;
-		} else if (state === STATES.EXPANDED) {
-			state = STATES.DEFAULT;
-			if (inactiveAdBridge) {
-				adBridge = inactiveAdBridge;
-				adController = inactiveAdController;
-				inactiveAdBridge = null;
-				adController = null;
-			}
-			endExpanded();
-		} else if (state === STATES.RESIZED) {
-			state = STATES.DEFAULT;
-			resetDefaultSize();
-		} else {
-			return;
-		}
-		adBridge.pushChange({'state':state, 'currentPosition':currentPosition});
-		repaintAdWindow();
-   	};
-   
-   	var repaintAdWindow = function () {
-   		if (!adWindow) return;
-   		adWindow.resizeBy(-1,0);
-   		adWindow.resizeBy(1,0);
-   	};
+        showMraidCloseButton(false);
+        if (state === STATES.DEFAULT) {
+            adBridge.broadcastEvent('hide');
+            state = STATES.HIDDEN;
+            adBridge.pushChange({'state':state});
+        } else if (state === STATES.EXPANDED) {
+            state = STATES.DEFAULT;
+            if (inactiveAdBridge) {
+                adBridge = inactiveAdBridge;
+                adController = inactiveAdController;
+                inactiveAdBridge = null;
+                adController = null;
+            }
+            adBridge.pushChange({'state':state});
+            endExpanded();
+        } else if (state === STATES.RESIZED) {
+            state = STATES.DEFAULT;
+            adBridge.pushChange({'state':state});
+            resetDefaultSize();
+        } else {
+            return;
+        }
+
+        adBridge.pushChange({'currentPosition':currentPosition});
+        repaintAdWindow();
+    };
+    
+    var repaintAdWindow = function () {
+        if (!adWindow) return;
+        adWindow.resizeBy(-1,0);
+        adWindow.resizeBy(1,0);
+    };
     
     var initAdBridge = function(bridge, controller) {
         broadcastEvent(EVENTS.INFO, 'initializing bridge object ' + bridge + controller);
         
         inactiveAdBridge = adBridge;
         inactiveAdController = adController;
-        
+
         adBridge = bridge;
         adController = controller;
         
         if (placement === PLACEMENTS.INTERSTITIAL) {
-        	showMraidCloseButton(true);
+            showMraidCloseButton(true);
         }
         
         bridge.addEventListener('activate', function(service) {
@@ -794,56 +803,56 @@ INFO mraid.js identification script found
         }, this);
   
         bridge.addEventListener('expand', function(uri) {
-        	if (state === STATES.HIDDEN || state === STATES.EXPANDED || state === STATES.UNKNOWN || state === STATES.LOADING) {
-        		return;
-        	}
-    		state = STATES.EXPANDED;
-    		showMraidCloseButton(true);
-        	
-        	var ac = adResizeContainer;
-        		acs = adResizeContainer.style,
-        		topAdContainer = adContainer;
-        	if (uri && uri !== '') {
-        		state = STATES.LOADING;
-        		
-        		adExpandedContainer = document.createElement('div');
-	        	adFrameExpanded = document.createElement('iframe'); 
-	        	adFrameExpanded.setAttribute('scrolling', 'no');
-	        	adFrameExpanded.setAttribute('frameborder', 'adFrameExpanded');
-	        	adFrameExpanded.setAttribute('id', '0');
-	        	adFrameExpanded.style.height = '100%';
-	        	adFrameExpanded.style.width = '100%';
-	        	adFrameExpanded.style.position = 'absolute';
-	        	adFrameExpanded.style.overflow = 'hidden';
-	        	adFrameExpanded.style.padding = '0px';
-	        	adFrameExpanded.style.margin = '0px';
-	        	adFrameExpanded.style['z-index'] = getHighestZindex()+1;
-	        	ac = adExpandedContainer;
-	        	adExpandedContainer.appendChild(adFrameExpanded);
-	        	adExpandedContainer.appendChild(closeEventRegion);
-	        	adContainer.parentNode.appendChild(adExpandedContainer);
-	        	insertAdURI(adFrameExpanded, uri);
-	        	adExpandedContainer.style['z-index'] = getHighestZindex()+1;
-	        	topAdContainer = adFrameExpanded;
-        	}
-        	
-        	acs.position = 'absolute';
-        	
-        	setAdResizeContainerStyle(ac, maxSize);
-        	
-			topAdContainer['z-index'] = getHighestZindex()+1;
-        	
-        	if (!uri || uri == '') {
-	    		adBridge.pushChange({'state':state, 'currentPosition': currentPosition, 'size': size });
-		        broadcastEvent(EVENTS.INFO, 'expanding one-part ad');
-        		repaintAdWindow();
-		        
-        	} else {
-        		broadcastEvent(EVENTS.INFO, 'expanding two-part ad: ' + uri);
-        	}
-        	
-			mraidview.setOrientation(orientation, true);
-			
+            if (state === STATES.HIDDEN || state === STATES.EXPANDED || state === STATES.UNKNOWN || state === STATES.LOADING) {
+                return;
+            }
+            state = STATES.EXPANDED;
+            showMraidCloseButton(true);
+            
+            var ac = adResizeContainer;
+                acs = adResizeContainer.style,
+                topAdContainer = adContainer;
+            if (uri && uri !== '') {
+                state = STATES.LOADING;
+                
+                adExpandedContainer = document.createElement('div');
+                adFrameExpanded = document.createElement('iframe'); 
+                adFrameExpanded.setAttribute('scrolling', 'no');
+                adFrameExpanded.setAttribute('frameborder', 'adFrameExpanded');
+                adFrameExpanded.setAttribute('id', '0');
+                adFrameExpanded.style.height = '100%';
+                adFrameExpanded.style.width = '100%';
+                adFrameExpanded.style.position = 'absolute';
+                adFrameExpanded.style.overflow = 'hidden';
+                adFrameExpanded.style.padding = '0px';
+                adFrameExpanded.style.margin = '0px';
+                adFrameExpanded.style['z-index'] = getHighestZindex()+1;
+                ac = adExpandedContainer;
+                adExpandedContainer.appendChild(adFrameExpanded);
+                adExpandedContainer.appendChild(closeEventRegion);
+                adContainer.parentNode.appendChild(adExpandedContainer);
+                insertAdURI(adFrameExpanded, uri);
+                adExpandedContainer.style['z-index'] = getHighestZindex()+1;
+                topAdContainer = adFrameExpanded;
+            }
+            
+            acs.position = 'absolute';
+            
+            setAdResizeContainerStyle(ac, maxSize);
+            
+            topAdContainer['z-index'] = getHighestZindex()+1;
+            
+            if (!uri || uri == '') {
+                adBridge.pushChange({'state':state, 'currentPosition': currentPosition, 'size': size });
+                broadcastEvent(EVENTS.INFO, 'expanding one-part ad');
+                repaintAdWindow();
+                
+            } else {
+                broadcastEvent(EVENTS.INFO, 'expanding two-part ad: ' + uri);
+            }
+            
+            mraidview.setOrientation(orientation, true);
+            
         }, this);
         
         bridge.addEventListener('close', closeAd , this);
@@ -869,34 +878,35 @@ INFO mraid.js identification script found
             broadcastEvent(EVENTS.INFO, 'opening ' + URL);
             window.open(URL, '_blank', 'left=1000,width='+screenSize.width+',height='+screenSize.height+',menubar=no,location=no,toolbar=no,status=no,personalbar=no,resizable=no,scrollbars=no,chrome=no,all=no');
         }, this);
-		
-		bridge.addEventListener('playVideo', function(URL) {
-			broadcastEvent(EVENTS.INFO, 'playing ' + URL);
-			window.open(URL, '_blank');
-		}, this);
         
-		bridge.addEventListener('storePicture', function(URL) {
-			var allow = confirm('CONFIRM: Store this image to gallery?\nURL:' + URL);
-			if (allow) {
-				window.open('../imageDownload.php?imageUrl=' + URL);
-				broadcastEvent(EVENTS.INFO, 'storing the image ' + URL);
-			} else {
-				broadcastEvent(EVENTS.ERROR, 'Permission denied by user', 'storePicture');
-			}
-		}, this);
-		
+        bridge.addEventListener('playVideo', function(URL) {
+            broadcastEvent(EVENTS.INFO, 'playing ' + URL);
+            window.open(URL, '_blank');
+        }, this);
+        
+        bridge.addEventListener('storePicture', function(URL) {
+            var allow = confirm('CONFIRM: Store this image to gallery?\nURL:' + URL);
+            if (allow) {
+                window.open('../imageDownload.php?imageUrl=' + URL);
+                broadcastEvent(EVENTS.INFO, 'storing the image ' + URL);
+            } else {
+                broadcastEvent(EVENTS.ERROR, 'Permission denied by user', 'storePicture');
+            }
+        }, this);
+        
         bridge.addEventListener('resize', function(uri) {
-        	if (state === STATES.EXPANDED) {
-        		broadcastEvent(EVENTS.ERROR, 'Can not expand a resized ad', 'resize');
-        		return;
-        	} else if (state === STATES.HIDDEN || state === STATES.UNKNOWN || state === STATES.LOADING) {
-        		return;
-        	}
-        	state = STATES.RESIZED;
-        	showMraidCloseButton(true);
-        	resizeAd();
-        	
-        	adBridge.pushChange({ 'state':state, 'currentPosition':currentPosition, 'size':size });
+
+            if (state === STATES.EXPANDED) {
+                broadcastEvent(EVENTS.ERROR, 'Can not expand a resized ad', 'resize');
+                return;
+            } else if (state === STATES.HIDDEN || state === STATES.UNKNOWN || state === STATES.LOADING) {
+                return;
+            }
+            state = STATES.RESIZED;
+            showMraidCloseButton(true);
+            resizeAd();
+            
+            adBridge.pushChange({ 'state':state, 'currentPosition':currentPosition, 'size':size });
         }, this);
         
         bridge.addEventListener('setExpandProperties', function(properties) {
@@ -905,33 +915,33 @@ INFO mraid.js identification script found
             !properties.height || (expandProperties.height = properties.height);
             !properties.useCustomClose || (expandProperties.useCustomClose = properties.useCustomClose);
             
-			adBridge.pushChange({'expandProperties':expandProperties});
+            adBridge.pushChange({'expandProperties':expandProperties});
         }, this);
         
         bridge.addEventListener('setResizeProperties', function(properties) {
             broadcastEvent(EVENTS.INFO, 'setting resize properties to ' + stringify(properties));
             setResizeProperties(properties);
-			adBridge.pushChange({'resizeProperties':resizeProperties});
+            adBridge.pushChange({'resizeProperties':resizeProperties});
         }, this);
         
         bridge.addEventListener('createCalendarEvent', function(params) {
-			var allow = confirm('CONFIRM: Create this calendar event?\n' + stringify(params));
-			if (allow) {
-	            broadcastEvent(EVENTS.INFO, 'creating event ' + stringify(params));
-			} else {
-				broadcastEvent(EVENTS.ERROR, 'Permission denied by user', 'createCalendarEvent');
-			}
+            var allow = confirm('CONFIRM: Create this calendar event?\n' + stringify(params));
+            if (allow) {
+                broadcastEvent(EVENTS.INFO, 'creating event ' + stringify(params));
+            } else {
+                broadcastEvent(EVENTS.ERROR, 'Permission denied by user', 'createCalendarEvent');
+            }
         }, this);
         
         bridge.addEventListener('setOrientationProperties', function(properties) {
             broadcastEvent(EVENTS.INFO, 'setting orientation properties to ' + stringify(properties));
             setOrientationProperties(properties);
-			adBridge.pushChange({'resizeProperties':orienationProperties});
+            adBridge.pushChange({'resizeProperties':orienationProperties});
         }, this);
         
         bridge.addEventListener('useCustomClose', function(useCustomCloseIndicator) {
-        	 broadcastEvent(EVENTS.INFO, 'setting useCustomClose properties to ' + stringify(useCustomCloseIndicator));
-        	 expandProperties.useCustomClose = !!useCustomCloseIndicator;
+             broadcastEvent(EVENTS.INFO, 'setting useCustomClose properties to ' + stringify(useCustomCloseIndicator));
+             expandProperties.useCustomClose = !!useCustomCloseIndicator;
         }, this);
         
         controller.addEventListener('info', function(message) {
@@ -943,51 +953,51 @@ INFO mraid.js identification script found
         }, this);
         
         var initProps = {
-			state:STATES.LOADING,
+            state:STATES.LOADING,
             screenSize:screenSize,
             orientation:orientation,
             size:size,
             defaultPosition:defaultPosition,
             maxSize:maxSize,
             expandProperties:expandProperties,
-			resizeProperties:resizeProperties,
-			orientationProperties:orientationProperties,
+            resizeProperties:resizeProperties,
+            orientationProperties:orientationProperties,
             supports:supports,
-			version:mraidview.version,
-			placement:mraidview.placement,
-			currentPosition:defaultPosition,
-			isViewable:isAdViewAble()
+            version:mraidview.version,
+            placement:mraidview.placement,
+            currentPosition:defaultPosition,
+            isViewable:isAdViewAble()
         };
         
         bridge.pushChange({version:mraidview.version});
         bridge.pushChange(initProps);
         
         if (!!inactiveAdBridge) {
-        	state =  STATES.EXPANDED;
-        	mraidview.setOrientation(orientation, true);
-        	bridge.pushChange({'state':state, 'currentPosition': currentPosition });
-        	repaintAdWindow();
+            state =  STATES.EXPANDED;
+            mraidview.setOrientation(orientation, true);
+            bridge.pushChange({'state':state, 'currentPosition': currentPosition });
+            repaintAdWindow();
         }
 
-		bridge.pushChange({ state:state });
+        bridge.pushChange({ state:state });
     };
     
     var initAdFrame = function() {
-    	if (this.detachEvent) {
-			this.detachEvent("onload", initAdFrame);
-		} else {
-			this.onload = ''; 
-		}
+        if (this.detachEvent) {
+            this.detachEvent("onload", initAdFrame);
+        } else {
+            this.onload = ''; 
+        }
         broadcastEvent(EVENTS.INFO, 'initializing ad frame');
         
-       	var win = this.contentWindow,
-        	doc = win.document,
-        	adScreen = {};
-        	
+        var win = this.contentWindow,
+            doc = win.document,
+            adScreen = {};
+            
         for (var prop in win.screen) {
-        	if (prop !== 'width' && prop !== 'height') {
-        		adScreen[prop] = win.screen[prop];
-        	}
+            if (prop !== 'width' && prop !== 'height') {
+                adScreen[prop] = win.screen[prop];
+            }
         }
         
         adScreen.width = screenSize.width;
@@ -997,11 +1007,10 @@ INFO mraid.js identification script found
         
         var bridgeJS = doc.createElement('script');
         bridgeJS.setAttribute('type', 'text/javascript');
-		bridgeJS.setAttribute('src', 'mraidview-bridge.js');
+        bridgeJS.setAttribute('src', 'mraidview-bridge.js');
         doc.getElementsByTagName('head')[0].appendChild(bridgeJS);
         
         intervalID = win.setInterval(function() {
-			console.log('waiting for win.mraidview');
             if (win.mraidview) {
                 win.clearInterval(intervalID);
                 
@@ -1009,10 +1018,8 @@ INFO mraid.js identification script found
                 mraidJS.setAttribute('type', 'text/javascript');
                 mraidJS.setAttribute('src', 'mraid-main.js');
                 doc.getElementsByTagName('head')[0].appendChild(mraidJS);
-				console.log('injected mraid-main.js');
-				
+                
                 intervalID = win.setInterval(function() {
-					console.log('waiting for win.mraid');
                     if (win.mraid) {
                         win.clearInterval(intervalID);
                         window.clearTimeout(timeoutID);
@@ -1024,26 +1031,31 @@ INFO mraid.js identification script found
     };
     
     var changeViewable = function (toggle) {
-    	if (!isViewable && isAdViewAble()) {
-    		isViewable = true;
-    		adBridge.pushChange({ 'isViewable': isViewable});
-    		if (inactiveAdBridge) inactiveAdBridge.pushChange({'isViewable': isViewable});
-	    } else if (isViewable && !isAdViewAble()) {
-	    	isViewable = false;
-	    	adBridge.pushChange({ 'isViewable': isViewable});
-    		if (inactiveAdBridge) inactiveAdBridge.pushChange({'isViewable': isViewable});
-	    }
+        if (!isViewable && isAdViewAble()) {
+            isViewable = true;
+            adBridge.pushChange({ 'isViewable': isViewable});
+            if (inactiveAdBridge) inactiveAdBridge.pushChange({'isViewable': isViewable});
+        } else if (isViewable && !isAdViewAble()) {
+            isViewable = false;
+            adBridge.pushChange({ 'isViewable': isViewable});
+            if (inactiveAdBridge) inactiveAdBridge.pushChange({'isViewable': isViewable});
+        }
     };
     
     var isAdViewAble = function () {
-    	var viewableAttr = adContainer.getAttribute('data-isViewable');
-    	return ((typeof(viewableAttr) === 'string' && viewableAttr === 'true') || (typeof(viewableAttr) === 'boolean' && viewableAttr));
+        var viewableAttr = adContainer.getAttribute('data-isViewable');
+        return ((typeof(viewableAttr) === 'string' && viewableAttr === 'true') || (typeof(viewableAttr) === 'boolean' && viewableAttr));
     };
     
     var setAdOrientation = function (degree) {
-    	if (adContainerOrientation !== degree) {
-    		adContainerOrientation = degree;
-    		adBridge.pushChange({'orientation': adContainerOrientation});
-    	}
+        if (adContainerOrientation !== degree) {
+            adContainerOrientation = degree;
+            adBridge.pushChange({'orientation': adContainerOrientation});
+        }
+    };
+
+    var updateAdSize = function(val){
+        setMaxAdArea(val);
+        setExpandProperties(val);
     };
 })();
