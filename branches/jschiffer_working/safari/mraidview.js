@@ -96,7 +96,7 @@ INFO mraid.js identification script found
     // EVENT HANDLING ///////////////////////////////////////////////////////////////
     
     var listeners = {};
-    //in this view, broadcast is ONLY used for error and info. it 
+    
     var broadcastEvent = function() {
         var args = new Array(arguments.length);
         for (var i = 0; i < arguments.length; i++) args[i] = arguments[i];
@@ -104,15 +104,13 @@ INFO mraid.js identification script found
         var event = args.shift();
             
         for (var key in listeners[event]) {
-            //the key is the function + scope to string per addEventListener
             var handler = listeners[event][key];
             handler.func.apply(handler.func.scope, args);
         }
     }
 	
 	mraidview.broadcastEvent = broadcastEvent;
-    //as currently configured, this adds error and info reporting from main.js
-    //map with key of function name and its scope = {scope and func}
+    
     mraidview.addEventListener = function(event, listener, scope) {
         var key = String(listener) + String(scope);
         var map = listeners[event]
@@ -122,7 +120,7 @@ INFO mraid.js identification script found
         }
         map[key] = {scope:(scope?scope:{}),func:listener};
     };
-    //map with key of function name and its scope = {scope and func}
+
     mraidview.removeEventListener = function(event, listener, scope) {
         var key = String(listener) + String(scope);
         var map = listeners[event];
@@ -178,7 +176,7 @@ INFO mraid.js identification script found
         orientation = -1;
     
     // PUBLIC ACCESSOR METHODS ///////////////////////////////////////////////////////////////
-    //exposed to main.js; thats the caller here.
+
     mraidview.getAdContent = function() {
         return adContent;
     };
@@ -222,7 +220,7 @@ INFO mraid.js identification script found
 		} else {
 			adHtml = '';
 		}	
-	}
+	};
     
     mraidview.resetSupports = function() {
 		supports = [];
@@ -446,12 +444,8 @@ INFO mraid.js identification script found
 		isViewable = false;
     };
     
-
-    
-
 	var showMraidCloseButton = function(toggle) {
 		var	closeDiv = closeEventRegion;
-			
 		closeDiv.style.position = 'absolute';
 		
 		if (toggle) {
@@ -496,9 +490,7 @@ INFO mraid.js identification script found
 			closeDiv.style.display = 'none';
 			broadcastEvent (EVENTS.INFO, 'removing MRAID close button');
 		}
-		
 	};
-    
 	
     var loadAd = function() {
         reset();
@@ -568,7 +560,6 @@ INFO mraid.js identification script found
     };
     
     var resizeAd = function() {
-        console.info('resizeAd state = '+state);
     	adContainer.style.overflow = 'visible';
     	var arcs = adResizeContainer.style; 
     	arcs.position = 'absolute';
@@ -587,7 +578,6 @@ INFO mraid.js identification script found
     };
     
     var setMaxAdArea = function (size) {
-        console.info('setMaxAdArea state = '+state);
     	var maxDiv = adWindow.document.getElementById('maxArea');
         maxDiv.style.width = [size.width, 'px'].join('');
         maxDiv.style.height = [size.height, 'px'].join('');
@@ -601,11 +591,6 @@ INFO mraid.js identification script found
         !adBridge || adBridge.pushChange({'expandProperties': size});
     };
 
-/*
-    var setScreenSize = function(size){
-        !adBridge || adBridge.pushChange({'screenSize': size});  
-    };
-*/    
     var setAdResizeContainerStyle = function (resizeContainer, _maxSize) {
     	var acs = resizeContainer.style;
     	if (mraidview.version == VERSIONS.V2) {
@@ -635,7 +620,6 @@ INFO mraid.js identification script found
     };
     
     var resetDefaultSize = function () {
-        console.info('resetDefaultSize state = '+state);
     	adResizeContainer.style.overflow = 'hidden';
     	var arcs = adResizeContainer.style; 
     	arcs.position = 'static';
@@ -669,7 +653,6 @@ INFO mraid.js identification script found
     };
     
     var endExpanded = function() {
-        console.info('endExpanded state' +state);
     	if (adExpandedContainer) {
     		adResizeContainer.appendChild(closeEventRegion);
     		adExpandedContainer.parentNode.removeChild(adExpandedContainer);
@@ -740,7 +723,6 @@ INFO mraid.js identification script found
 		    	setResizePropertyValues(properties); 
 			}
     	}
-        console.info('setResizeProperties state = '+state);
     	adBridge.pushChange({'resizeProperties':resizeProperties});
     };
     
@@ -778,9 +760,6 @@ INFO mraid.js identification script found
 				adController = null;
 			}
             adBridge.pushChange({'state':state});
-            
-            console.info('closeAd calling endExpanded state = '+state);
-			
             endExpanded();
 		} else if (state === STATES.RESIZED) {
 			state = STATES.DEFAULT;
@@ -789,11 +768,7 @@ INFO mraid.js identification script found
 		} else {
 			return;
 		}
-        /* 
-        *  previously we were setting state here.
-        *  as a result it looks like when we reset size elsewhere, even earlier in this function, 
-        *  size was being reported early, and state was reported late.
-        */
+
 		adBridge.pushChange({'currentPosition':currentPosition});
 		repaintAdWindow();
    	};
@@ -803,8 +778,6 @@ INFO mraid.js identification script found
    		adWindow.resizeBy(-1,0);
    		adWindow.resizeBy(1,0);
    	};
-
-
     
     var initAdBridge = function(bridge, controller) {
         broadcastEvent(EVENTS.INFO, 'initializing bridge object ' + bridge + controller);
@@ -937,7 +910,6 @@ INFO mraid.js identification script found
         }, this);
         
         bridge.addEventListener('setExpandProperties', function(properties) {
-            console.info('setExpandProperties state = '+stae);
             broadcastEvent(EVENTS.INFO, 'setting expand properties to ' + stringify(properties));
             !properties.width || (expandProperties.width = properties.width);
             !properties.height || (expandProperties.height = properties.height);
@@ -1009,8 +981,6 @@ INFO mraid.js identification script found
 
         bridge.pushChange({ state:state });
     };
-    
-    
     
     var initAdFrame = function() {
     	if (this.detachEvent) {
@@ -1087,7 +1057,5 @@ INFO mraid.js identification script found
     var updateAdSize = function(val){
         setMaxAdArea(val);
         setExpandProperties(val);
-        //setScreenSize(val);
-
     };
 })();
