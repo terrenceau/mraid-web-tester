@@ -213,17 +213,10 @@
         forceOrientation:function(value) { for (a in ORIENTATIONS) if (value === ORIENTATIONS[a]) return(true); return(false); }
 	}
 
+    //TODO:Restore old change handlers with *only* their broadcast info properties
     var changeHandlers = {
 		
         state:function(val) {
-            /*
-            var _state = model.getValue('state');
-            if(_state==STATES.LOADING && val!=STATES.LOADING){
-                return;
-            }else{
-                broadcastEvent(EVENTS.STATECHANGE, _state);
-            }
-            */
             broadcastEvent(EVENTS.STATECHANGE, model.getValue('state'));
         },
         size:function(val) {
