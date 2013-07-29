@@ -826,6 +826,7 @@ INFO mraid.js identification script found
                 adFrameExpanded.style.overflow = 'hidden';
                 adFrameExpanded.style.padding = '0px';
                 adFrameExpanded.style.margin = '0px';
+				adFrameExpanded.style.border = 'none';
                 adFrameExpanded.style['z-index'] = getHighestZindex()+1;
                 ac = adExpandedContainer;
                 adExpandedContainer.appendChild(adFrameExpanded);
@@ -840,7 +841,7 @@ INFO mraid.js identification script found
             
             setAdResizeContainerStyle(ac, maxSize);
             
-            topAdContainer['z-index'] = getHighestZindex()+1;
+//            topAdContainer['z-index'] = getHighestZindex()+1;
             
             if (!uri || uri == '') {
                 adBridge.pushChange({'state':state, 'currentPosition': currentPosition, 'size': size });
