@@ -1,0 +1,209 @@
+<script type="text/javascript" src="mraid.js"></script>
+<script type="application/javascript" charset="utf-8">
+	var readyTimeout;
+	function readyListener() {
+		if (typeof (mraid) === 'undefined') {
+			console.log('mraid not found yet');
+			readyTimeout = setTimeout(readyListener, 10);
+		} else {
+			var state = mraid.getState();
+			if (state === 'default') {
+				console.log ('mraid state is already default before could register listener for ready')
+				mraidReady();
+			} else {
+				console.log ('state is ' + state + '; register ready listener');
+				clearTimeout(readyTimeout);
+				mraid.addEventListener('ready', mraidReady);
+			}
+		}
+	}
+	readyListener();
+</script>
+
+<style type="text/css" media="screen">
+ 	* {
+ 		margin: 0px;
+ 		padding: 0px;
+ 	}
+ 	
+ 	body, html {
+ 		height: 100%;
+ 	}
+ 	
+	#adWrapper {
+		color: white;
+		width: 100%;
+		height: 100%;
+		font-family: Arial, Helvetica, sans-serif;
+	}
+	
+	label {
+		display: block;
+		overflow: hidden;
+		padding: 5px; 
+	}
+	
+	label > * {
+		width:45%;
+		float:right; 
+	}
+	
+	#adDefault {
+		display: block;
+		background: black;
+		height: 100%;
+		text-align: center;
+		background: black;
+	}
+	
+	#adDefault a#defaultResizeButton {
+		color:#FDF5CE;
+		font: 1.3em Arial, Helvetica, sans-serif;
+		text-decoration: none;
+		text-transform: uppercase;
+		padding:8px;
+	}
+	
+	#adResized {
+		padding: 20px;
+		height: 100%;
+		display: none;
+		color: black;
+		background-color: white;
+	}
+	
+	#close-indicator {
+		height: 24px;
+		width: 24px;
+		padding: 13px;
+		position: absolute;
+	}
+	
+</style>
+
+<body style="height: 100%;"></body>
+<div id='adWrapper'>
+	<div id='adDefault'>
+		<a id="defaultResizeButton" href="#" onclick="return false;">Resize</a>
+	</div>
+	<form id='adResized'>
+		<img id="close-indicator" style="position: absolute; z-index: 99999" src="../test-ad/shrink.png" alt="Close" />
+		<label><input type="number" name='width' required/>Width (px): </label>
+		<label>Height (px): <input name='height' type="number" required/></label>
+		<label>Close Position: <select name='customClosePosition'>
+			<option>top-left</option>
+			<option selected>top-right</option>
+			<option>center</option>
+			<option>bottom-left</option>
+			<option>bottom-right</option>
+			<option>top-center</option>
+			<option>bottom-center</option>
+		</select></label>
+		<label>Offset X (px): <input name='offsetX' type="number" required/></label>
+		<label>Offset Y (px): <input name='offsetY' type="number" required/></label>
+		<label>Allow Offscreen: <input name='allowOffscreen' type="checkbox" /></label>
+		
+		<a id="resizeButton" href="#" onClick='return false;'>Resize</a>
+		<a id="closeButton" href="#" onClick='return false;'>Close</a>
+	</form>
+</div>
+
+
+
+<script type="text/javascript" charset="utf-8">
+	var defaultResizeButton,
+		adWrapper = document.getElementById('adWrapper'),
+		adDefault = document.getElementById('adDefault'),
+		adResized = document.getElementById('adResized'),
+		defaultResizeButton = document.getElementById('defaultResizeButton'),
+		resizeButton = document.getElementById('resizeButton'),
+		closeButton = document.getElementById('closeButton');
+		
+	
+	function mraidReady() {
+		mraid.addEventListener('stateChange', handleStateChangeEvent );
+		defaultResizeButton.addEventListener('click', defaultResize);
+		resizeButton.addEventListener('click', resize);
+		closeButton.addEventListener('click', mraid.close);
+	}
+	
+	function resize() {
+		var resProps = {};
+
+		if (adResized.width.value)
+			resProps.width = parseInt(adResized.width.value);
+		if (adResized.height.value)
+			resProps.height = parseInt(adResized.height.value);
+		if (adResized.customClosePosition.value)
+			resProps.customClosePosition = adResized.customClosePosition.value;
+		if (adResized.offsetX.value)
+			resProps.offsetX = parseInt(adResized.offsetX.value);
+		if (adResized.offsetY.value)
+			resProps.offsetY = parseInt(adResized.offsetY.value);
+		resProps.allowOffscreen = adResized.allowOffscreen.checked;
+			
+		mraid.setResizeProperties(resProps);
+		mraid.resize();
+	}
+	
+	function defaultResize() {
+		mraid.setResizeProperties({
+			width: 250,
+			height: 300,
+			offsetX: 0,
+			offsetY: 0,
+			allowOffscreen: false
+		});
+		
+		mraid.resize();
+	}
+	
+	function handleStateChangeEvent(state) {
+		if (state === 'resized') {
+			adDefault.style.display = 'none';
+			adResized.style.display = 'block';
+			
+			syncFormWithResizeProperties(mraid.getResizeProperties());
+			syncCloseTargetArea(mraid.getResizeProperties());
+			
+		} else if (state === 'default') {
+			adDefault.style.display = 'block';
+			adResized.style.display = 'none';
+		}
+	}
+	
+	function syncFormWithResizeProperties(resizeProperties) {
+		adResized.width.value = resizeProperties.width;
+		adResized.height.value = resizeProperties.height;
+		adResized.offsetX.value = resizeProperties.offsetX;
+		adResized.offsetY.value = resizeProperties.offsetY;
+		adResized.customClosePosition.value = resizeProperties.customClosePosition;
+		adResized.allowOffscreen.checked = resizeProperties.allowOffscreen;
+	}
+	
+	function syncCloseTargetArea (resizeProperties) {
+		var closeDiv = document.getElementById('close-indicator'),
+			pos = resizeProperties.customClosePosition;
+		
+		closeDiv.style.top = '';
+		closeDiv.style.left = '';
+		closeDiv.style.right = '';
+		closeDiv.style.bottom = '';	
+		
+		if (/top/i.test(pos)) {
+			closeDiv.style.top = '0px';
+		} else if (/bottom/i.test(pos)) {
+			closeDiv.style.bottom = '0px';
+		} else {
+			closeDiv.style.top = [(resizeProperties.height - 50 ) / 2, 'px'].join('');
+		}
+		
+		if (/left/i.test(pos)) {
+			closeDiv.style.left = '0px';
+		} else if (/right/i.test(pos)) {
+			closeDiv.style.right = '0px';
+		} else {
+			closeDiv.style.left = [(resizeProperties.width - 50 ) / 2, 'px'].join('');
+		}
+	}
+</script>
