@@ -21,7 +21,7 @@ INFO creating adWindow
 INFO adWindow loaded
   * (2) render() calls initAdFrame()
 INFO initializing ad frame  
-  * (3) initAdFrame() calls initAdBridge()
+  * (3) initAdFrame() calls initAdBridge() and loadHtml()
 INFO initializing bridge object [object Object]
   * (4) initAdBridge() calls
   *   (a) EventListeners.add for info reporting
@@ -505,21 +505,8 @@ INFO mraid.js identification script found
         
         if (useHtml) {
             var doc = adFrame.contentWindow.document;
-            doc.body.innerHTML = '<body style="margin: 0px;"><div id="_mraidCloseDiv" onclick="mraid.close()"></div>'+adHtml+'</body>';
+            doc.body.innerHTML = '<body style="margin: 0px;"><div id="_mraidCloseDiv" onclick="mraid.close()"></div><div id="adHtml"></div></body>';
             doc.body.style.margin = '0px';
-            
-            var scripts = doc.body.getElementsByTagName("script");
-            var scriptsCount=scripts.length;
-            for (var i=0; i<scriptsCount; i++) {
-                var script = doc.createElement('script');
-                script.type = "text/javascript";
-                if (scripts[i].src !== '') {
-                    script.src = scripts[i].src;
-                } else {
-                    script.text = scripts[i].text;
-                }
-                doc.body.appendChild(script);
-            }
             initAdFrame.call(adFrame);
         } else {
             if (adURIFragment) {
@@ -534,6 +521,32 @@ INFO mraid.js identification script found
             setMaxAdArea(maxSize);
         } else {
             setMaxAdArea({'width':maxSize.height, 'height': maxSize.width, 'x': maxSize.x, 'y': maxSize.y});
+        }
+    };
+
+    var loadHtml = function(adHtml) {
+        var doc = adFrame.contentWindow.document,
+            adDiv = doc.getElementById('adHtml'),
+            scripts,
+            scriptsCount,
+            script,
+            i;
+        if (!adHtml || !adDiv) {
+            return;
+        }
+        broadcastEvent(EVENTS.INFO, 'loading ad html');
+        adDiv.innerHTML = adHtml;
+        scripts = doc.body.getElementsByTagName("script");
+        scriptsCount = scripts.length;
+        for (i=0; i<scriptsCount; i++) {
+            script = doc.createElement('script');
+            script.type = "text/javascript";
+            if (scripts[i].src !== '') {
+                script.src = scripts[i].src;
+            } else {
+                script.text = scripts[i].text;
+            }
+            doc.body.appendChild(script);
         }
     };
     
@@ -1025,6 +1038,7 @@ INFO mraid.js identification script found
                         win.clearInterval(intervalID);
                         window.clearTimeout(timeoutID);
                         initAdBridge(win.mraidview, win.mraid);
+                        loadHtml(adHtml);
                     }
                 }, 30);
             }
