@@ -97,6 +97,10 @@
         broadcastEvent('setResizeProperties', properties);
     };
 
+    mraidview.setOrientationProperties = function (properties) {
+        broadcastEvent('setOrientationProperties', properties);
+    };
+
 	mraidview.storePicture = function (url) {
 		broadcastEvent('storePicture', url);
 	};
