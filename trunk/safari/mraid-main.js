@@ -24,23 +24,23 @@
 
     INLINE       : 'inline',
     INTERSTITIAL : 'interstitial'
-  }
+  };
 
   var ORIENTATIONS = mraid.ORIENTATIONS = {
     NONE      : 'none',
     PORTRAIT  : 'portrait',
     LANDSCAPE : 'landscape'
-  }
+  };
 
   var CLOSEPOSITIONS = mraid.CLOSEPOSITIONS = {
     TOPLEFT     : 'top-left',
     TOPRIGHT    : 'top-right',
-    TOPCENTER 	: 'top-center',
+    TOPCENTER	: 'top-center',
     BOTTOMLEFT  : 'bottom-left',
     BOTTOMRIGHT : 'bottom-right',
     BOTTOMCENTER: 'bottom-center',
     CENTER      : 'center'
-  }
+  };
 
     var STATES = mraid.STATES = {
         UNKNOWN     :'unknown',
@@ -120,7 +120,7 @@
   var orientationProperties = {
     allowOrientationChange: true,
     forceOrientation: ORIENTATIONS.NONE
-  }
+  };
 
     var supports = {
         'sms':true,
@@ -155,26 +155,26 @@
 
     var expandPropertyValidators = {
         isModal:function(value) { return (value === true); },
-    useCustomClose:function(value) { return (value === true || value === false); },
-    width:function(value) { return !isNaN(value) && value >= 0; },
-    height:function(value) { return !isNaN(value) && value >= 0; },
+        useCustomClose:function(value) { return (value === true || value === false); },
+        width:function(value) { return !isNaN(value) && value >= 0; },
+        height:function(value) { return !isNaN(value) && value >= 0; },
         allowOrientationChange:function(value) { return (value === true || value === false); },
         forceOrientation:function(value) { return (value in ORIENTATIONS); }
     };
 
-  var resizePropertyValidators = {
-    width:function(value) { return !isNaN(value) && value >= 0; },
-    height:function(value) { return !isNaN(value) && value >= 0; },
-    offsetX:function(value) { return !isNaN(value); },
-    offsetY:function(value) { return !isNaN(value); },
+    var resizePropertyValidators = {
+        width:function(value) { return !isNaN(value) && value >= 50; },
+        height:function(value) { return !isNaN(value) && value >= 50; },
+        offsetX:function(value) { return !isNaN(value); },
+        offsetY:function(value) { return !isNaN(value); },
         allowOffscreen:function(value) { return (value === true || value === false); },
         customClosePosition:function(value) { for (a in CLOSEPOSITIONS) if (value === CLOSEPOSITIONS[a]) return(true); return(false); }
-  }
+    };
 
   var orientationPropertyValidators = {
     allowOrientationChange:function(value) { return typeof value === 'boolean' },
         forceOrientation:function(value) { for (a in ORIENTATIONS) if (value === ORIENTATIONS[a]) return(true); return(false); }
-  }
+  };
 
     var changeHandlers = {
     version:function(val) {
@@ -498,18 +498,35 @@ console.log('for property "' + property + '" typeof handler is: ' + typeof(handl
 
   mraid.useCustomClose = function(useCustomCloseIndicator) {
   /* introduced in MRAIDv1 */
-    mraidview.useCustomClose(useCustomCloseIndicator)
+    mraidview.useCustomClose(useCustomCloseIndicator);
   };
 
     mraid.resize = function() {
   /* introduced in MRAIDv2 */
-      if (parseFloat(mraidVersion, 10) < 2) {
-      broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (resize)', 'resize');
-      } else {
-        if (placementType === PLACEMENTS.INLINE) {
-        mraidview.resize();
+        if (parseFloat(mraidVersion, 10) < 2) {
+            broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (resize)', 'resize');
+        } else {
+            if (placementType === PLACEMENTS.INLINE) {
+                /* Check for required properties. */
+                if (!resizeProperties.width) { // Is width either missing or 0?
+                    broadcastEvent(EVENTS.ERROR, 'Could not resize because property width is missing', 'resize');
+                    return false;
+                }
+                if (!resizeProperties.height) { // Is height either missing or 0?
+                    broadcastEvent(EVENTS.ERROR, 'Could not resize because property height is missing', 'resize');
+                    return false;
+                }
+                if (!resizeProperties.hasOwnProperty('offsetX')) { // Is offsetX missing?
+                    broadcastEvent(EVENTS.ERROR, 'Could not resize because property offsetX is missing', 'resize');
+                    return false;
+                }
+                if (!resizeProperties.hasOwnProperty('offsetY')) { // Is offsetY missing?
+                    broadcastEvent(EVENTS.ERROR, 'Could not resize because property offsetY is missing', 'resize');
+                    return false;
+                }
+                mraidview.resize();
+            }
         }
-    }
     };
 
     mraid.getResizeProperties = function() {
@@ -524,13 +541,13 @@ console.log('for property "' + property + '" typeof handler is: ' + typeof(handl
 
     mraid.setResizeProperties = function(properties) {
   /* introduced in MRAIDv2 */
-      if (parseFloat(mraidVersion, 10) < 2) {
-      broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (setResizeProperties)', 'setResizeProperties');
-      } else {
-      if (valid(properties, resizePropertyValidators, 'setResizeProperties')) {
-        mraidview.setResizeProperties(properties);
-      }
-    }
+        if (parseFloat(mraidVersion, 10) < 2) {
+            broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (setResizeProperties)', 'setResizeProperties');
+        } else {
+            if (valid(properties, resizePropertyValidators, 'setResizeProperties')) {
+                mraidview.setResizeProperties(properties);
+            }
+        }
     };
 
     mraid.getCurrentPosition = function() {
