@@ -1,0 +1,39 @@
+<script src="mraid.js"></script>
+<style>
+	html, body,	#clickThru {
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		background: white;
+		color: blue;
+		text-decoration: underline;
+		text-align: center;
+	}
+
+	#clickThru {
+		padding: 1em 0 0;
+		cursor: pointer;
+	}
+</style>
+<div id="clickThru">
+	Click here to open two part expandable
+</div>
+<script>
+(function () {
+    'use strict';
+    var el = document.getElementById('clickThru');
+    if ('ontouchstart' in document.documentElement) {
+        el.addEventListener('touchstart', function () {
+            if (mraid !== undefined) {
+                mraid.expand('/test-ad/iab-2part/mraid2part.expanded.html?clickThru=http://www.iab.net');
+            }
+        });
+    } else {
+        el.addEventListener('click', function () {
+            if (mraid !== undefined) {
+                mraid.expand('/test-ad/iab-2part/mraid2part.expanded.html?clickThru=http://www.iab.net');
+            }
+        });
+    }
+}());
+</script>
