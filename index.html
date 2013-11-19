@@ -44,15 +44,6 @@
 			orientationWidget.init();
 
 			load();
-      var adtag = getQueryStringValue('adtag'), fragmentArea;
-      if (adtag  && adtag !== ''){
-          setTimeout(function(){
-             fragmentArea = document.getElementById('adFragment');
-			   		if (fragmentArea){
-                 fragmentArea.value =  decodeURIComponent(adtag);
-				     }
-          }, 1500);
-			}
 		});
     </script>
 </head>
