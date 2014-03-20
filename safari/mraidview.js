@@ -552,17 +552,30 @@ INFO mraid.js identification script found
     };
 
     var insertAdURI = function(newAdFrame, uri) {
+        var qs = 'htmlproxy.php?url=' + encodeURIComponent(uri),
+            success;
+
+        success = (function () {
+            return function (data) {
+                newAdFrame.src = 'javascript: ' + data;
+            };
+        })();
+
         if (newAdFrame.attachEvent) {
-            newAdFrame.attachEvent("onload", initAdFrame);
+            newAdFrame.attachEvent("onload", init2PartAdFrame);
         } else {
-            newAdFrame.onload = initAdFrame;
+            newAdFrame.onload = init2PartAdFrame;
         }
 
         if (adURIFragment) {
             document.cookie = 'uri='+encodeURIComponent(uri);
-            newAdFrame.contentWindow.location.replace('ad.html');
-        } else {
-            newAdFrame.contentWindow.location.replace(uri);
+        }
+        try {
+            if (window.jQuery !== undefined) {
+                jQuery.get(qs, success);
+            }
+        } catch(e) {
+
         }
     };
 
@@ -832,15 +845,15 @@ INFO mraid.js identification script found
                 adExpandedContainer = document.createElement('div');
                 adFrameExpanded = document.createElement('iframe');
                 adFrameExpanded.setAttribute('scrolling', 'no');
-                adFrameExpanded.setAttribute('frameborder', 'adFrameExpanded');
-                adFrameExpanded.setAttribute('id', '0');
+                adFrameExpanded.setAttribute('frameborder', '0');
+                adFrameExpanded.setAttribute('id', 'adFrameExpanded');
                 adFrameExpanded.style.height = '100%';
                 adFrameExpanded.style.width = '100%';
                 adFrameExpanded.style.position = 'absolute';
                 adFrameExpanded.style.overflow = 'hidden';
                 adFrameExpanded.style.padding = '0px';
                 adFrameExpanded.style.margin = '0px';
-        adFrameExpanded.style.border = 'none';
+                adFrameExpanded.style.border = 'none';
                 adFrameExpanded.style['z-index'] = getHighestZindex()+1;
                 ac = adExpandedContainer;
                 adExpandedContainer.appendChild(adFrameExpanded);
@@ -1040,6 +1053,58 @@ INFO mraid.js identification script found
                         window.clearTimeout(timeoutID);
                         initAdBridge(win.mraidview, win.mraid);
                         loadHtml(adHtml);
+                    }
+                }, 30);
+            }
+        }, 30);
+    };
+
+    /**
+     * init2PartAdFrame initializes the second ad frame used by two-part ads.
+     * TODO: optimize initAdFrame and init2PartAdFrame so we don't duplicate functionality/code.
+     */
+    var init2PartAdFrame = function() {
+        if (this.detachEvent) {
+            this.detachEvent("onload", init2PartAdFrame);
+        } else {
+            this.onload = '';
+        }
+        broadcastEvent(EVENTS.INFO, 'initializing ad frame for part 2');
+
+        var win = this.contentWindow,
+            doc = win.document,
+            adScreen = {};
+
+        for (var prop in win.screen) {
+            if (prop !== 'width' && prop !== 'height') {
+                adScreen[prop] = win.screen[prop];
+            }
+        }
+
+        adScreen.width = screenSize.width;
+        adScreen.height = screenSize.height;
+
+        win.screen = adScreen;
+
+        var bridgeJS = doc.createElement('script');
+        bridgeJS.setAttribute('type', 'text/javascript');
+        bridgeJS.setAttribute('src', 'mraidview-bridge.js');
+        doc.getElementsByTagName('head')[0].appendChild(bridgeJS);
+
+        intervalID = win.setInterval(function() {
+            if (win.mraidview) {
+                win.clearInterval(intervalID);
+
+                var mraidJS = doc.createElement('script');
+                mraidJS.setAttribute('type', 'text/javascript');
+                mraidJS.setAttribute('src', 'mraid-main.js');
+                doc.getElementsByTagName('head')[0].appendChild(mraidJS);
+
+                intervalID = win.setInterval(function() {
+                    if (win.mraid) {
+                        win.clearInterval(intervalID);
+                        window.clearTimeout(timeoutID);
+                        initAdBridge(win.mraidview, win.mraid);
                     }
                 }, 30);
             }
