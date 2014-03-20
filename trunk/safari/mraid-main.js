@@ -7,7 +7,8 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-(function() {
+(function(window) {
+
     var mraid = window.mraid = {};
 
     // CONSTANTS ///////////////////////////////////////////////////////////////
@@ -184,7 +185,7 @@
       placementType = val;
     },
         state:function(val) {
-      console.log('state listener. state='+state+':new='+val);
+            console.log('state listener. state='+state+':new='+val);
             if (state == STATES.UNKNOWN && val != STATES.UNKNOWN) {
                 broadcastEvent(EVENTS.INFO, 'controller initialized');
             }
@@ -299,10 +300,12 @@
 
     // PRIVATE METHODS ////////////////////////////////////////////////////////////
 
+    console = window.console; /* This is necessary for 2-Part Ads; otherwise, console returns null. */
+
     mraidview.addEventListener('change', function(properties) {
         for (var property in properties) {
             var handler = changeHandlers[property];
-console.log('for property "' + property + '" typeof handler is: ' + typeof(handler));
+            console.log('for property "' + property + '" typeof handler is: ' + typeof(handler));
             handler(properties[property]);
         }
     });
@@ -679,4 +682,4 @@ console.log('for property "' + property + '" typeof handler is: ' + typeof(handl
       }
     return (null);
     };
-})();
+})(window);
