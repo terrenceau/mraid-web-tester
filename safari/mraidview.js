@@ -266,7 +266,6 @@ INFO mraid.js identification script found
         var body = adWindow.document.getElementsByTagName('body')[0],
             maxDiv = adWindow.document.getElementById('maxArea');
 
-
         maxDiv.style['-webkit-transform'] = '';
 
         if (degree%180 === 0) { // Portrait
@@ -553,23 +552,41 @@ INFO mraid.js identification script found
 
     var insertAdURI = function(newAdFrame, uri) {
         var qs = 'htmlproxy.php?url=' + encodeURIComponent(uri),
-            success;
+            success,
+            twoPartHtml = '';
 
         success = (function () {
             return function (data) {
-                newAdFrame.src = 'javascript: ' + data;
+                var scripts = '<script type="text/javascript" src="mraidview-bridge.js"></script><script type="text/javascript" src="mraid-main.js"></script>',
+                    headStart,
+                    headEnd,
+                    headContent = ''; // Grab the contents of the head. We'll add these later so we have time to initialize mraid before any inline scripts run.
+                twoPartHtml = data;
+                headStart = data.indexOf('<head>') + 6;
+                headEnd = data.indexOf('</head>');
+                headContent = data.substr(headStart, headEnd - headStart);
+                twoPartHtml = twoPartHtml.replace(headContent, scripts);
+                newAdFrame.src = 'javascript: ' + twoPartHtml;
+
+                if (newAdFrame.contentWindow.document.readyState === 'complete') {
+                    init2PartAdFrame(headContent);
+                } else {
+                    if (newAdFrame.attachEvent) {
+                        newAdFrame.attachEvent("onload", function () {
+                            init2PartAdFrame(headContent);
+                        });
+                    } else {
+                        newAdFrame.onload = function () {
+                            init2PartAdFrame(headContent);
+                        };
+                    }
+                }
+                if (adURIFragment) {
+                    document.cookie = 'uri='+encodeURIComponent(uri);
+                }
             };
         })();
-
-        if (newAdFrame.attachEvent) {
-            newAdFrame.attachEvent("onload", init2PartAdFrame);
-        } else {
-            newAdFrame.onload = init2PartAdFrame;
-        }
-
-        if (adURIFragment) {
-            document.cookie = 'uri='+encodeURIComponent(uri);
-        }
+        
         try {
             if (window.jQuery !== undefined) {
                 jQuery.get(qs, success);
@@ -757,6 +774,9 @@ INFO mraid.js identification script found
         if (!properties) return;
         if (properties.forceOrientation) {
             orientationProperties.forceOrientation = properties.forceOrientation;
+            if (defaultWindowSize === null) {
+                mraidview.setDefaultWindowSize();
+            }
             mraidview.setOrientation(orientation, true);
         }
 
@@ -856,10 +876,13 @@ INFO mraid.js identification script found
                 adFrameExpanded.style.border = 'none';
                 adFrameExpanded.style['z-index'] = getHighestZindex()+1;
                 ac = adExpandedContainer;
+
+                insertAdURI(adFrameExpanded, uri);
+                    
                 adExpandedContainer.appendChild(adFrameExpanded);
                 adExpandedContainer.appendChild(closeEventRegion);
                 adContainer.parentNode.appendChild(adExpandedContainer);
-                insertAdURI(adFrameExpanded, uri);
+                
                 adExpandedContainer.style['z-index'] = getHighestZindex()+1;
                 topAdContainer = adFrameExpanded;
             }
@@ -876,9 +899,9 @@ INFO mraid.js identification script found
                 repaintAdWindow();
 
             } else {
+
                 broadcastEvent(EVENTS.INFO, 'expanding two-part ad: ' + uri);
             }
-
             mraidview.setOrientation(orientation, true);
 
         }, this);
@@ -1002,6 +1025,7 @@ INFO mraid.js identification script found
 
         if (!!inactiveAdBridge) {
             state =  STATES.EXPANDED;
+
             mraidview.setOrientation(orientation, true);
             bridge.pushChange({'state':state, 'currentPosition': currentPosition });
             repaintAdWindow();
@@ -1061,19 +1085,40 @@ INFO mraid.js identification script found
 
     /**
      * init2PartAdFrame initializes the second ad frame used by two-part ads.
-     * TODO: optimize initAdFrame and init2PartAdFrame so we don't duplicate functionality/code.
      */
-    var init2PartAdFrame = function() {
+    var init2PartAdFrame = function(headContent) {
         if (this.detachEvent) {
             this.detachEvent("onload", init2PartAdFrame);
         } else {
             this.onload = '';
         }
         broadcastEvent(EVENTS.INFO, 'initializing ad frame for part 2');
-
-        var win = this.contentWindow,
+        var win = adFrameExpanded.contentWindow,
             doc = win.document,
             adScreen = {};
+        function loadPartTwo() {
+            var headDump = doc.createElement('div'),
+                script,
+                scripts,
+                scriptsCount,
+                i;
+            headDump.id = 'headDump';
+            doc.querySelector('body').appendChild(headDump);
+            headDump.innerHTML = headContent;
+            scripts = headDump.getElementsByTagName("script");
+            scriptsCount = scripts.length;
+            for (i=0; i<scriptsCount; i++) {
+                script = doc.createElement('script');
+                script.type = "text/javascript";
+                if (scripts[i].src !== '') {
+                    script.src = scripts[i].src;
+                } else {
+                    var text = scripts[i].text.replace(/\\'/g, "'");
+                    script.text = text;
+                }
+                doc.body.appendChild(script);
+            }
+        }
 
         for (var prop in win.screen) {
             if (prop !== 'width' && prop !== 'height') {
@@ -1085,26 +1130,15 @@ INFO mraid.js identification script found
         adScreen.height = screenSize.height;
 
         win.screen = adScreen;
-
-        var bridgeJS = doc.createElement('script');
-        bridgeJS.setAttribute('type', 'text/javascript');
-        bridgeJS.setAttribute('src', 'mraidview-bridge.js');
-        doc.getElementsByTagName('head')[0].appendChild(bridgeJS);
-
         intervalID = win.setInterval(function() {
             if (win.mraidview) {
                 win.clearInterval(intervalID);
-
-                var mraidJS = doc.createElement('script');
-                mraidJS.setAttribute('type', 'text/javascript');
-                mraidJS.setAttribute('src', 'mraid-main.js');
-                doc.getElementsByTagName('head')[0].appendChild(mraidJS);
-
                 intervalID = win.setInterval(function() {
                     if (win.mraid) {
                         win.clearInterval(intervalID);
                         window.clearTimeout(timeoutID);
                         initAdBridge(win.mraidview, win.mraid);
+                        loadPartTwo();
                     }
                 }, 30);
             }
