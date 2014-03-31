@@ -1165,10 +1165,17 @@ INFO mraid.js identification script found
     var setAdOrientation = function (degree) {
         if (adContainerOrientation !== degree) {
             adContainerOrientation = degree;
-            adFrame.contentWindow.orientation = degree;
+            /* 
+            * The code below has been commented for two reasons:
+            * 1. The device should always report the correct orientation, so we don't want to override the
+            * window.orientation property.
+            * 2. There is no MRAID orientation api, so we don't need to trigger an orientationchange event. This code is here 
+            * as legacy from when MRAID orientation was under consideration.
+            */
+            /*adFrame.contentWindow.orientation = degree;
             var orientationChangeEvent = adFrame.contentWindow.document.createEvent('HTMLEvents');
             orientationChangeEvent.initEvent('orientationchange', false, false);
-            adFrame.contentWindow.dispatchEvent(orientationChangeEvent);
+            adFrame.contentWindow.dispatchEvent(orientationChangeEvent);*/
             adBridge.pushChange({'size': size, 'orientation': adContainerOrientation, 'currentPosition': currentPosition});
         }
     };
