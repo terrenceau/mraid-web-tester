@@ -110,11 +110,13 @@
     };
 
   var resizeProperties = {
+    initialized: false,
+    validated: false,
     width: 0,
     height: 0,
     customClosePosition: CLOSEPOSITIONS.TOPRIGHT,
-    offsetX: 0,
-    offsetY: 0,
+    offsetX: undefined,
+    offsetY: undefined,
     allowOffscreen: true
   };
 
@@ -143,38 +145,214 @@
     var intervalID = null;
 
     var dimensionValidators = {
-        x:function(value) { return !isNaN(value); },
-        y:function(value) { return !isNaN(value); },
-        width:function(value) { return !isNaN(value) && value >= 0; },
-        height:function(value) { return !isNaN(value) && value >= 0; }
+        x: function (value) {
+            var ret = { 'value': true, 'msg': ''};
+            if (isNaN(value)) {
+                ret.value = false;
+                ret.msg = 'not a number';
+            }
+            return ret;
+        },
+        y: function (value) {
+            var ret = { 'value': true, 'msg': ''};
+            if (isNaN(value)) {
+                ret.value = false;
+                ret.msg = 'not a number';
+            }
+            return ret;
+        },
+        width: function (value) {
+            var ret = { 'value': true, 'msg': ''};
+            if (isNaN(value)) {
+                ret.value = false;
+                ret.msg = 'not a number';
+            } else if (!(value >= 0)) {
+                ret.value = false;
+                ret.msg = 'too small';
+            }
+            return ret;
+        },
+        height: function (value) {
+            var ret = { 'value': true, 'msg': ''};
+            if (isNaN(value)) {
+                ret.value = false;
+                ret.msg = 'not a number';
+            } else if (!(value >= 0)) {
+                ret.value = false;
+                ret.msg = 'too small';
+            }
+            return ret;
+        }
     };
 
     var sizeValidators = {
-        width:function(value) { return !isNaN(value) && value >= 0; },
-        height:function(value) { return !isNaN(value) && value >= 0; }
+        width: function (value) {
+            var ret = { 'value': true, 'msg': ''};
+            if (isNaN(value)) {
+                ret.value = false;
+                ret.msg = 'not a number';
+            } else if (!(value >= 0)) {
+                ret.value = false;
+                ret.msg = 'too small';
+            }
+            return ret;
+        },
+        height: function (value) {
+            var ret = { 'value': true, 'msg': ''};
+            if (isNaN(value)) {
+                ret.value = false;
+                ret.msg = 'not a number';
+            } else if (!(value >= 0)) {
+                ret.value = false;
+                ret.msg = 'too small';
+            }
+            return ret;
+        }
     };
 
     var expandPropertyValidators = {
-        isModal:function(value) { return (value === true); },
-        useCustomClose:function(value) { return (value === true || value === false); },
-        width:function(value) { return !isNaN(value) && value >= 0; },
-        height:function(value) { return !isNaN(value) && value >= 0; },
-        allowOrientationChange:function(value) { return (value === true || value === false); },
-        forceOrientation:function(value) { return (value in ORIENTATIONS); }
+        isModal: function (value) {
+            var ret = { 'value': true, 'msg': ''};
+            if (!(value === true || value === false)) {
+                ret.value = false;
+                ret.msg = 'not a valid type';
+            }
+            return ret;
+        },
+        useCustomClose: function (value) {
+            var ret = { 'value': true, 'msg': ''};
+            if (!(value === true || value === false)) {
+                ret.value = false;
+                ret.msg = 'not a valid type';
+            }
+            return ret;
+        },
+        width: function (value) {
+            var ret = { 'value': true, 'msg': ''};
+            if (isNaN(value)) {
+                ret.value = false;
+                ret.msg = 'not a number';
+            } else if (!(value >= 0)) {
+                ret.value = false;
+                ret.msg = 'too small';
+            }
+            return ret;
+        },
+        height: function (value) {
+            var ret = { 'value': true, 'msg': ''};
+            if (isNaN(value)) {
+                ret.value = false;
+                ret.msg = 'not a number';
+            } else if (!(value >= 0)) {
+                ret.value = false;
+                ret.msg = 'too small';
+            }
+            return ret;
+        },
+        allowOrientationChange: function (value) {
+            var ret = { 'value': true, 'msg': ''};
+            if (!(value === true || value === false)) {
+                ret.value = false;
+                ret.msg = 'not a valid type';
+            }
+            return ret;
+        },
+        forceOrientation: function (value) {
+            var ret = { 'value': true, 'msg': ''};
+            if (!(value in ORIENTATIONS)) {
+                ret.value = false;
+                ret.msg = 'not a valid option';
+            }
+            return ret;
+        }
     };
 
     var resizePropertyValidators = {
-        width:function(value) { return !isNaN(value) && value >= 50; },
-        height:function(value) { return !isNaN(value) && value >= 50; },
-        offsetX:function(value) { return !isNaN(value); },
-        offsetY:function(value) { return !isNaN(value); },
-        allowOffscreen:function(value) { return (value === true || value === false); },
-        customClosePosition:function(value) { for (a in CLOSEPOSITIONS) if (value === CLOSEPOSITIONS[a]) return(true); return(false); }
+        width: function (value) {
+            var ret = { 'value': true, 'msg': ''};
+            if (isNaN(value)) {
+                ret.value = false;
+                ret.msg = 'not a number';
+            } else if (!(value >= 50)) {
+                ret.value = false;
+                ret.msg = 'too small';
+            }
+            return ret;
+        },
+        height: function (value) {
+            var ret = { 'value': true, 'msg': ''};
+            if (isNaN(value)) {
+                ret.value = false;
+                ret.msg = 'not a number';
+            } else if (!(value >= 50)) {
+                ret.value = false;
+                ret.msg = 'too small';
+            }
+            return ret;
+        },
+        offsetX: function (value) {
+            return {'value': (!isNaN(value)), 'msg': (!isNaN(value) ? '' : 'not a number')}; 
+        },
+        offsetY: function (value) {
+            return {'value': (!isNaN(value)), 'msg': (!isNaN(value) ? '' : 'not a number')};
+        },
+        allowOffscreen: function (value) {
+            var ret = { 'value': true, 'msg': ''};
+            if (!(value === true || value === false)) {
+                ret.value = false;
+                ret.msg = 'not a valid type';
+            }
+            return ret;
+        },
+        customClosePosition: function (value) {
+            var ret = { 'value': true, 'msg': ''};
+            for (a in CLOSEPOSITIONS) {
+                if (value === CLOSEPOSITIONS[a]) {
+                    return ret;; 
+                }
+            }
+            ret.value = false;
+            ret.msg = 'not a valid option';
+            return ret;
+        },
+        initialized: function (value) {
+            var ret = { 'value': true, 'msg': ''};
+            if (!(value === true || value === false)) {
+                ret.value = false;
+                ret.msg = 'not a valid type';
+            }
+            return ret;
+        },
+        validated: function (value) {
+            var ret = { 'value': true, 'msg': ''};
+            if (!(value === true || value === false)) {
+                ret.value = false;
+                ret.msg = 'not a valid type';
+            }
+            return ret;
+        }
     };
 
   var orientationPropertyValidators = {
-    allowOrientationChange:function(value) { return typeof value === 'boolean' },
-        forceOrientation:function(value) { for (a in ORIENTATIONS) if (value === ORIENTATIONS[a]) return(true); return(false); }
+    allowOrientationChange: function (value) {
+        var ret = { 'value': true, 'msg': ''};
+        if (!(typeof value === 'boolean')) {
+            ret.value = false;
+            ret.msg = 'not a valid type';
+        }
+        return ret;
+    },
+    forceOrientation: function (value) {
+        var ret = { 'value': true, 'msg': ''};
+        for (a in ORIENTATIONS) {
+            if (value === ORIENTATIONS[a]) {
+                return ret;
+            }
+        }
+        ret.value = false;
+        ret.msg = 'not a valid option';
+        return ret;
+    }
   };
 
     var changeHandlers = {
@@ -358,9 +536,12 @@
             if (!validators[i]) {
                 broadcastEvent(EVENTS.ERROR, 'Invalid property specified - ' + i + '.', action);
                 return false;
-            } else if (!validators[i](obj[i])) {
-                broadcastEvent(EVENTS.ERROR, 'Value of property ' + i + ' is not valid type.', action);
-                return false;
+            } else {
+                var result = validators[i](obj[i]);
+                if (!result.value) {
+                    broadcastEvent(EVENTS.ERROR, 'Value of property ' + i + ' is ' + result.msg + '.', action);
+                    return false;
+                }
             }
         }
         return true;
@@ -510,21 +691,13 @@
             broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (resize)', 'resize');
         } else {
             if (placementType === PLACEMENTS.INLINE) {
-                /* Check for required properties. */
-                if (!resizeProperties.width) { // Is width either missing or 0?
-                    broadcastEvent(EVENTS.ERROR, 'Could not resize because property width is missing', 'resize');
+                /* Check if resizeProperties object has been initialized && validated */
+                if (!resizeProperties.initialized) {
+                    broadcastEvent(EVENTS.ERROR, 'Could not resize because props not init', 'resize');
                     return false;
                 }
-                if (!resizeProperties.height) { // Is height either missing or 0?
-                    broadcastEvent(EVENTS.ERROR, 'Could not resize because property height is missing', 'resize');
-                    return false;
-                }
-                if (!resizeProperties.hasOwnProperty('offsetX')) { // Is offsetX missing?
-                    broadcastEvent(EVENTS.ERROR, 'Could not resize because property offsetX is missing', 'resize');
-                    return false;
-                }
-                if (!resizeProperties.hasOwnProperty('offsetY')) { // Is offsetY missing?
-                    broadcastEvent(EVENTS.ERROR, 'Could not resize because property offsetY is missing', 'resize');
+                if (!resizeProperties.validated) {
+                    broadcastEvent(EVENTS.ERROR, 'Could not resize because props not valid', 'resize');
                     return false;
                 }
                 mraidview.resize();
@@ -533,13 +706,13 @@
     };
 
     mraid.getResizeProperties = function() {
-  /* introduced in MRAIDv2 */
-      if (parseFloat(mraidVersion, 10) < 2) {
-      broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (getResizeProperties)', 'getResizeProperties');
-      } else {
-        return clone(resizeProperties);
-    }
-    return (null);
+        /* introduced in MRAIDv2 */
+        if (parseFloat(mraidVersion, 10) < 2) {
+            broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (getResizeProperties)', 'getResizeProperties');
+        } else {
+            return clone(resizeProperties);
+        }
+        return (null);
     };
 
     mraid.setResizeProperties = function(properties) {
@@ -547,8 +720,30 @@
         if (parseFloat(mraidVersion, 10) < 2) {
             broadcastEvent(EVENTS.ERROR, 'Method not supported by this version. (setResizeProperties)', 'setResizeProperties');
         } else {
+            /* Set flag so resize() will know an attempt has been made to reset the properties. */
+            resizeProperties.initialized = false;
+
+            /* Check for required properties. */
+            if (!properties.width && !resizeProperties.width) { // Is width either missing or 0?
+                broadcastEvent(EVENTS.ERROR, 'Could not resize because property width is missing', 'setResizeProperties');
+                return false;
+            }
+            if (!properties.height && !resizeProperties.height) { // Is height either missing or 0?
+                broadcastEvent(EVENTS.ERROR, 'Could not resize because property height is missing', 'setResizeProperties');
+                return false;
+            }
+            if (!properties.hasOwnProperty('offsetX') && resizeProperties.offsetX === undefined) { // Is offsetX missing?
+                broadcastEvent(EVENTS.ERROR, 'Could not resize because property offsetX is missing', 'setResizeProperties');
+                return false;
+            }
+            if (!properties.hasOwnProperty('offsetY') && resizeProperties.offsetY === undefined) { // Is offsetY missing?
+                broadcastEvent(EVENTS.ERROR, 'Could not resize because property offsetY is missing', 'setResizeProperties');
+                return false;
+            }
             if (valid(properties, resizePropertyValidators, 'setResizeProperties')) {
                 mraidview.setResizeProperties(properties);
+                //resizeProperties.validated = true;
+                //resizeProperties.initialized = true;
             }
         }
     };
