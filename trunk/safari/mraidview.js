@@ -168,7 +168,7 @@ INFO mraid.js identification script found
         maxSize = { width:0, height:0, x:0, y:0 },
         expandProperties = { width:0, height:0, useCustomClose:false, isModal:false},
         orienationProperties = { allowOrientationChange:true, forceOrientation:'none' },
-        resizeProperties = { width:0, height:0, customClosePosition:'top-right', offsetX:0, offsetY:0, allowOffscreen:true},
+        resizeProperties = { initialized: false, validated: false, width:0, height:0, customClosePosition:'top-right', offsetX:undefined, offsetY:undefined, allowOffscreen:true},
         supports = [],
         version = VERSIONS.UNKNOWN,
         placement = PLACEMENTS.UNKNOWN,
@@ -436,7 +436,7 @@ INFO mraid.js identification script found
         previousState = null;
         state = STATES.DEFAULT;
         expandProperties = { width:maxSize.width, height:maxSize.height, useCustomClose:false, isModal:false};
-        resizeProperties = { width:0, height:0, customClosePosition:'top-right', offsetX:0, offsetY:0, allowOffscreen:true};
+        resizeProperties = { initialized: false, validated: false, width:0, height:0, customClosePosition:'top-right', offsetX:undefined, offsetY:undefined, allowOffscreen:true};
         orientationProperties = {allowOrientationChange:true, forceOrientation:'none'};
         orientation = (screenSize.width >= screenSize.height)?90:0;
         version = VERSIONS.UNKNOWN;
@@ -710,8 +710,10 @@ INFO mraid.js identification script found
     };
 
     var setResizeProperties = function(properties) {
+        resizeProperties.validated = false;
+
         if (!properties || !properties.width || !properties.height) {
-            broadcastEvent(EVENTS.ERROR, 'missing properties for setResizeProperties' , 'setResizeProperties');
+            adFrame.contentWindow.broadcastEvent(EVENTS.ERROR, 'missing properties for setResizeProperties' , 'setResizeProperties');
         }
 
         var regex = new RegExp('^(((top|bottom)-(left|right|center))|center)$', 'i');
@@ -721,14 +723,14 @@ INFO mraid.js identification script found
 
         if (!properties.allowOffscreen) {
             if (properties.width > maxSize.width || properties.height > maxSize.height) {
-                broadcastEvent(EVENTS.ERROR, 'invalid properties for setResizeProperties' , 'setResizeProperties');
+                adFrame.contentWindow.broadcastEvent(EVENTS.ERROR, 'invalid properties for setResizeProperties: width or height is too big' , 'setResizeProperties');
             } else {
                 var posX = Math.max(0, Math.min(maxSize.width - properties.width, defaultPosition.x + properties.offsetX)),
                     posY = Math.max(0, Math.min(maxSize.height - properties.height, defaultPosition.y + properties.offsetY));
 
                 properties.offsetX = posX - defaultPosition.x;
                 properties.offsetY = posY - defaultPosition.y;
-
+                properties.validated = true;
                 setResizePropertyValues(properties);
             }
         } else {
@@ -762,8 +764,10 @@ INFO mraid.js identification script found
                 closeTotalPositionY < 0 ||
                 closeTotalPositionY > maxSize.height - 50) {
 
-                broadcastEvent(EVENTS.ERROR, 'invalid properties for setResizeProperties' , 'setResizeProperties');
+                //broadcastEvent(EVENTS.ERROR, 'invalid properties for setResizeProperties' , 'setResizeProperties');
+                adFrame.contentWindow.broadcastEvent(EVENTS.ERROR, 'invalid properties for setResizeProperties', 'setResizeProperties');
             } else {
+                properties.validated = true;
                 setResizePropertyValues(properties);
             }
         }
@@ -789,6 +793,9 @@ INFO mraid.js identification script found
         for (var property in resizeProperties) {
             if (properties && typeof (properties[property]) !== 'undefined'  && properties[property] !== '')
                 resizeProperties[property] = properties[property];
+        }
+        if (resizeProperties.initialized === false) {
+            resizeProperties.initialized = true;
         }
     };
 
@@ -941,14 +948,14 @@ INFO mraid.js identification script found
                 window.open('../imageDownload.php?imageUrl=' + URL);
                 broadcastEvent(EVENTS.INFO, 'storing the image ' + URL);
             } else {
-                broadcastEvent(EVENTS.ERROR, 'Permission denied by user', 'storePicture');
+                adFrame.contentWindow.broadcastEvent(EVENTS.ERROR, 'Permission denied by user', 'storePicture');
             }
         }, this);
 
         bridge.addEventListener('resize', function(uri) {
 
             if (state === STATES.EXPANDED) {
-                broadcastEvent(EVENTS.ERROR, 'Can not expand a resized ad', 'resize');
+                adFrame.contentWindow.broadcastEvent(EVENTS.ERROR, 'Can not expand a resized ad', 'resize');
                 return;
             } else if (state === STATES.HIDDEN || state === STATES.UNKNOWN || state === STATES.LOADING) {
                 return;
@@ -980,7 +987,7 @@ INFO mraid.js identification script found
             if (allow) {
                 broadcastEvent(EVENTS.INFO, 'creating event ' + stringify(params));
             } else {
-                broadcastEvent(EVENTS.ERROR, 'Permission denied by user', 'createCalendarEvent');
+                adFrame.contentWindow.broadcastEvent(EVENTS.ERROR, 'Permission denied by user', 'createCalendarEvent');
             }
         }, this);
 
