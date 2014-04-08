@@ -1,0 +1,112 @@
+/*
+ *  Copyright (c) 2012 The mraid-web-tester project authors. All Rights Reserved.
+ *
+ *  Use of this source code is governed by a BSD-style license
+ *  that can be found in the LICENSE file in the root of the source
+ *  tree. All contributing project authors may
+ *  be found in the AUTHORS file in the root of the source tree.
+ */
+
+html, body {
+	height: 100%;
+	margin:0;
+}
+
+#tabs, #tabs-1, #tabs-2, #tabs-3 {
+	height: 43px;
+}
+
+input[class~=dimension] {
+    width: 35px;
+}
+
+#adURI, #adFragment {
+    width:95%;
+}
+
+div[class~=consoleFrame] {
+    border: solid black 1px;
+    width:100%;
+    height:485px;
+    overflow-x:scroll;
+    overflow-y:scroll;
+}
+
+#deviceDiv {
+	float:left;
+	width:50%;
+}
+
+#devicePreviewDiv {
+	float:right;
+}
+
+#complianceDiv {
+}
+
+#capabilitiesDiv {
+}
+
+#consoleDiv {
+	width:75%;
+	float: right;
+}
+#controlsDiv {
+	width:25%;
+	float: left;
+}
+
+#clearDiv {
+	clear:left;
+}
+
+#title {
+	width:200px;
+	height:31px;
+	float:right;
+	margin:7px 5px 0px 0px;
+	font-size:x-large;
+}
+
+#logo {
+	background-image:url(http://src.sencha.io/153/31/http://www.iab.net/media/image/new-iab-logo.gif);
+	background-repeat:no-repeat;
+	width:100px;
+	height:31px;
+	float:right;
+	margin:1px 5px 0px 10px;
+}
+
+#subtitle {
+	font-size: 12px;
+	position: absolute;
+	left: 277px;
+	top: 33px;
+}
+
+.formValues {
+	margin-top:-33px;
+	margin-bottom:2px;
+}
+.formValues2 {
+	margin-top:-65px;
+	margin-bottom:2px;
+}
+
+.t-on {
+	background-image:url(../widgets/img/timer-on.gif);
+	background-repeat:no-repeat;
+	width:32px;
+	height:32px;
+}
+
+.t-off {
+	background-image:url(../widgets/img/timer-off.gif);
+	background-repeat:no-repeat;
+	width:32px;
+	height:32px;
+}
+
+.no-margin {
+	margin:0;
+}
