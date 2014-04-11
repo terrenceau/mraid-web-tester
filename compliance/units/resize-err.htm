@@ -11,7 +11,7 @@ This IAB MRAID test creative was built by Nathan Carver, currently VP of Enginee
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     
     <!-- uncomment next line to include mraid mock object for browser testing -->
-    <!-- script type="text/javascript" src="../assets/mraid.mock.js"></script -->
+    <script type="text/javascript" src="../assets/mraid.mock.js"></script>
 
 <!-- -------------------------------------------------------------------------- -->    
 <!-- SNIPPET STARTS HERE FOR CUT-AND-PASTE TO USE THIS PAGE AS AN HTML FRAGMENT -->    
@@ -36,20 +36,20 @@ This IAB MRAID test creative was built by Nathan Carver, currently VP of Enginee
         margin-top: 4px;
     }
     .instruction { /* text on background giving instructions */
-        float:left;
+        float: left;
         font: 12px arial;
         margin-left: 4px;
         margin-top: 12px;
-        position:relative;
-        width:70px;
-        font-weight:bold;
+        position: relative;
+        width: 70px;
+        font-weight: bold;
     }
     .button { /* button background */
         background-color: white;
         box-shadow: 1px 1px 2px;
-        direction:pointer;
-        cursor:pointer;
-        float:left;
+        direction: pointer;
+        cursor: pointer;
+        float: left;
         height: 34px;
         margin-left: 3px;
         margin-right: 3px;
@@ -66,23 +66,45 @@ This IAB MRAID test creative was built by Nathan Carver, currently VP of Enginee
     }
     
     #consoleDiv { /* output of console.log mirrored to this container */
-        background-color:#ffffff;
-        height:98px;
+        background-color: #ffffff;
+        height: 98px;
         margin-left: auto ;
         margin-right: auto ;
-        width:298px;
+        width: 298px;
         border: solid black 1px;
-        display:none;
+        display: none;
     }
     
     #bannerDiv { /* banner size, color, centering */
-        background-color:#ffffff;
-        height:98px;
+        background-color: #ffffff;
+        height: 98px;
         margin-left: auto ;
         margin-right: auto ;
-        width:298px;
+        width: 298px;
         border: solid black 1px;
+        position: relative;
     }
+
+    #closeButtonDiv { /* text-based close button only shown if resize is successful */
+        position: absolute;
+        top: 0px;
+        bottom: 0px;
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: solid red 1px;
+        color: red;
+        background-color: #CCCCCC;
+        font-size: 20px;
+        font-family: Arial;
+        text-align: center;
+        padding: 14px;
+        box-shadow: none;
+        border-radius: 0px;
+        margin: 0px;
+        float: none;
+    }
+
     #resizeDiv { /* enforce new-line for second round of testing */
         clear:left;
     }
@@ -123,7 +145,7 @@ var DEBUG = 1,
 // $log.it is replacement for console.out
 // supports mirroring output to window.alert, reducing log output by level
 $log = {
-    logLevel : 0,                  //set to reduce output, 0 = all
+    logLevel : 2,                  //set to reduce output, 0 = all
     useAlert : false,              //toggle to also output to window.alert
     preface  : 'logit',            //set to preface all output by $log.it
 
@@ -192,10 +214,11 @@ $mraid = {
             var el = document.getElementById('bannerDiv'),
                 props = mraid.getResizeProperties();
 
-            el.style.width = props.width + 'px';
-            el.style.height = props.height + 'px';
-            el.style.top = props.offsetY + 'px';
-            el.style.left = props.offsetX + 'px';
+            el.style.width = (props.width - 2)  + 'px';
+            el.style.height = (props.height - 2) + 'px';
+
+            el = document.getElementById('closeButtonDiv');
+            el.style.display = 'block';
 
             // call mraid
             mraid.resize();
@@ -203,6 +226,7 @@ $mraid = {
             $log.it('OK mraid.resize()', INFO);
         } catch (e) {
             $log.it('ERR calling resize' + ', ' + e.message, ERR);
+            $tester.errorListener(e.message, 'resize');
         }
     },
 
@@ -219,6 +243,7 @@ $mraid = {
             return p;
         } catch (e) {
             $log.it('ERR calling getResizeProperties' + ', ' + e.message, ERR);
+            $tester.errorListener(e.message, 'getResizeProperties');
         }
     },
 
@@ -234,6 +259,7 @@ $mraid = {
             $log.it('OK mraid.setResizeProperties()', INFO);
         } catch (e) {
             $log.it('ERR calling setResizeProperties' + ', ' + e.message, ERR);
+            $tester.errorListener(e.message, 'setResizeProperties');
             return false;
         }
         return true;
@@ -251,6 +277,7 @@ $mraid = {
             $log.it('OK mraid.addEventListener()', INFO);
         } catch (e) {
             $log.it('ERR calling addEventListener for ' + evt + ', ' + e.message, ERR);
+            $tester.errorListener(e.message, 'addEventListener');
         }
     },
 
@@ -267,6 +294,7 @@ $mraid = {
             return v;
         } catch (e) {
             $log.it('ERR calling getVersion' + ', ' + e.message, ERR);
+            $tester.errorListener(e.message, 'getVersion');
         }
     },
 
@@ -283,6 +311,7 @@ $mraid = {
             return o;
         } catch (e) {
             $log.it('ERR calling getMaxSize' + ', ' + e.message, ERR);
+            $tester.errorListener(e.message, 'getMaxSize');
         }
     },
 
@@ -299,6 +328,7 @@ $mraid = {
             return s;
         } catch (e) {
             $log.it('ERR calling getState' + ', ' + e.message, ERR);
+            $tester.errorListener(e.message, 'getState');
         }
     },
 
@@ -315,6 +345,7 @@ $mraid = {
             return s;
         } catch (e) {
             $log.it('ERR calling close' + ', ' + e.message, ERR);
+            $tester.errorListener(e.message, 'close');
         }
     }
 };
@@ -382,6 +413,9 @@ $tester = {
             el = buttons[i];
             el.addEventListener('click', clickListener, false);
         }
+
+        //listen for stateChange
+        $mraid.addEventListener('stateChange', $tester.stateListener);
     },
 
 /**
@@ -397,8 +431,10 @@ $tester = {
         var el = document.getElementById('bannerDiv');
         el.style.width = '298px';
         el.style.height = '98px';
-        el.style.top = '0px';
-        el.style.left = '0px';
+
+        //and hide the close button
+        el = document.getElementById('closeButtonDiv');
+        el.style.display = 'none';
 
         //if requested, also update MRAID resize properties to match creative size
         if (includeResizeProperties) {
@@ -412,6 +448,17 @@ $tester = {
         }
     },
 
+/**
+* stateListener is the generic listener for the mraid 'stateChange' event to reset the ad when returning to default state
+* @namespace $tester
+* @method stateListener
+*/
+    stateListener : function (state) {
+        $log.it('OK state changed to: ' + state, INFO);
+        if (state === 'default') {
+            $tester.setDefault(false);
+        }
+    },
 
 /**
 * errorListener is the generic listener for the mraid 'error' event to report info to the console, and reset the ad as needed
@@ -554,7 +601,8 @@ For example, an error will occur if an ad sets allowOffscreen to "false" but set
 /**
 * @private
 * @method mraidRotateErr attempts to resize within the bounds of a portrait screen but that will be out of bounds in landscape
-* @TODO: this test is not yet implemented
+*   this test could not be executed solely in code, so the method is only a stub. Also, the MRAID specification is unclear on
+*   what should happen in this error condition.
 * MRAID REFERENCE
 
 allowOffscreen cannot solve all positioning issues. For example, if an ad successfully resizes in landscape orientation, but then becomes larger than the size of the screen due to an orientation change to portrait, the setting of allowOffscreen to false will have no effect, as there is no way the container/SDK can successfully reposition a landscape creative to fit on a portrait screen.
@@ -600,9 +648,25 @@ allowOffscreen: (optional) tells the container whether or not it should allow th
 
 /**
 * @private
+* @method getToggleOffscreen returns the current value of the toggleOffscreen button
+    this value should be used when sending the resizeProperty for allowOffscreen
+
+  @returns boolean true - toggleOffscreen should be set to true, false - toggleOffscreen should be set to false
+*/
+        function getToggleOffscreen() {
+            $log.it('getToggleOffscreen', DEBUG);
+            var el = document.getElementById('toggleOffscreenText'),
+                label = el.innerHTML;
+
+            return (label === 'TRUE');
+        }
+
+
+/**
+* @private
 * @method mraidResizeLeft attempts to resize the creative beyond the size of the screen which can cause two errors
 *   with allowOffscreen = true, the close indicator location will be off screen and should raise an error
-*   with allowOffscrren = false, the size of the creative will be too large and should raise an error
+*   with allowOffscreen = false, the size of the creative will be too large and should raise an error
 * MRAID REFERENCE
 
 A resized ad must position itself such that the entire close event region appears onscreen. If the container/SDK detects that a request to resize will result in the close event region being offscreen, the container/SDK should return an error, and ignore the resize
@@ -610,15 +674,20 @@ A resized ad must position itself such that the entire close event region appear
 */
         function mraidResizeLeft() {
             $log.it('mraidResizeLeft', DEBUG);
-            var maxSize = $mraid.getMaxSize(),
+            var allowOffscreen = getToggleOffscreen(),
+                maxSize = $mraid.getMaxSize(),
                 propsTooFarLeft = {
-                    'width' : maxSize.width,
+                    'width' : allowOffscreen ? maxSize.width + 50 : maxSize.width,
                     'height' : 200,
                     'offsetX' : -100,
                     'offsetY' : 0,
                     'customClosePosition' : 'top-left',
-                    'allowOffscreen' : true
-                };
+                    'allowOffscreen' : allowOffscreen
+                },
+                el = document.getElementById('closeButtonDiv');
+
+            el.style.left = "0px";
+            el.style.top = "0px";
             $mraid.setResizeProperties(propsTooFarLeft);
             $mraid.resize();
         }
@@ -632,15 +701,20 @@ A resized ad must position itself such that the entire close event region appear
         function mraidResizeRight() {
             $log.it('mraidResizeRight', DEBUG);
 
-            var maxSize = $mraid.getMaxSize(),
+            var allowOffscreen = getToggleOffscreen(),
+                maxSize = $mraid.getMaxSize(),
                 propsTooFarRight = {
-                    'width' : maxSize.width,
+                    'width' : allowOffscreen ? maxSize.width + 50 : maxSize.width,
                     'height' : 200,
                     'offsetX' : 100,
                     'offsetY' : 0,
                     'customClosePosition' : 'top-right',
-                    'allowOffscreen' : true
-                };
+                    'allowOffscreen' : allowOffscreen
+                },
+                el = document.getElementById('closeButtonDiv');
+
+            el.style.left = (maxSize.width - 52) + "px";
+            el.style.top = "0px";
             $mraid.setResizeProperties(propsTooFarRight);
             $mraid.resize();
         }
@@ -653,15 +727,20 @@ A resized ad must position itself such that the entire close event region appear
         function mraidResizeUp() {
             $log.it('mraidResizeUp', DEBUG);
 
-            var maxSize = $mraid.getMaxSize(),
+            var allowOffscreen = getToggleOffscreen(),
+                maxSize = $mraid.getMaxSize(),
                 propsTooFarUp = {
                     'width' : 300,
-                    'height' : maxSize.height,
+                    'height' : allowOffscreen ? maxSize.height + 50 : maxSize.height,
                     'offsetX' : 0,
                     'offsetY' : -100,
-                    'customClosePosition' : 'top-right',
-                    'allowOffscreen' : true
-                };
+                    'customClosePosition' : 'top-left',
+                    'allowOffscreen' : allowOffscreen
+                },
+                el = document.getElementById('closeButtonDiv');
+
+            el.style.left = "0px";
+            el.style.top = "0px";
             $mraid.setResizeProperties(propsTooFarUp);
             $mraid.resize();
         }
@@ -674,15 +753,20 @@ A resized ad must position itself such that the entire close event region appear
         function mraidResizeDown() {
             $log.it('mraidResizeDown', DEBUG);
 
-            var maxSize = $mraid.getMaxSize(),
+            var allowOffscreen = getToggleOffscreen(),
+                maxSize = $mraid.getMaxSize(),
                 propsTooFarDown = {
                     'width' : 300,
-                    'height' : maxSize.height,
-                    'offsetX' : 100,
-                    'offsetY' : 0,
+                    'height' : allowOffscreen ? maxSize.height + 50 : maxSize.height,
+                    'offsetX' : 0,
+                    'offsetY' : 100,
                     'customClosePosition' : 'bottom-right',
-                    'allowOffscreen' : true
-                };
+                    'allowOffscreen' : getToggleOffscreen()
+                },
+                el = document.getElementById('closeButtonDiv');
+
+            el.style.left = (298 - 50) + "px";
+            el.style.top = (maxSize.height - 52) + "px";
             $mraid.setResizeProperties(propsTooFarDown);
             $mraid.resize();
         }
@@ -771,6 +855,9 @@ A resized ad must position itself such that the entire close event region appear
         case 'clearLogDiv':
             clearConsole();
             break;
+        case 'closeButtonDiv':
+            $tester.setDefault(true);
+            break;
         default:
             unknownClick();
         }
@@ -803,6 +890,9 @@ A resized ad must position itself such that the entire close event region appear
         <div id="resizeRightDiv" class="button"><div id="resizeRightText" class="buttonLabel webdingFont">&rarr;</div></div>
         <div id="resizeUpDiv" class="button"><div id="resizeUpText" class="buttonLabel webdingFont">&uarr;</div></div>
         <div id="resizeDownDiv" class="button"><div id="resizeDownText" class="buttonLabel webdingFont">&darr;</div></div>
+
+        <!-- required close button -->
+        <div id="closeButtonDiv" class="button">X</div>
     </div>
     
     <!-- console div captures all console.log output as well -->
@@ -813,14 +903,14 @@ A resized ad must position itself such that the entire close event region appear
     </div>
 
 <script type="text/javascript">
-/* initialize manually to simulate ad envrionments where document ready events may have already fired */
+/* initialize manually to simulate ad environments where document ready events may have already fired */
         $tester.init(false, 0, 'ResizeErrTester');
-</script>    
-</body>
+</script>
 
 <!-- ------------------------------------------------------------------------ -->    
 <!-- SNIPPET ENDS HERE FOR CUT-AND-PASTE TO USE THIS PAGE AS AN HTML FRAGMENT -->
-<!--    BUT BE SURE TO REMOVE THE </HEAD> <BODY> AND </BODY> TAGS MANUALLY    -->
+<!--    BUT BE SURE TO REMOVE THE </HEAD> <BODY> TAGS MANUALLY    -->
 <!-- ------------------------------------------------------------------------ -->    
 
+</body>
 </html>
