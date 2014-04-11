@@ -7,7 +7,10 @@
 mraid = {
 
 // use a namespace-global to store the resizeProperties 
-    resizeProps : {},
+    resizeProps : {
+        'initialized': false,
+        'valid': false
+    },
 
 /**
 * provide a mock implementation of resize()
@@ -17,8 +20,11 @@ mraid = {
 */
     resize : function() {
         $log.it('resizing', DEBUG);
-        if (!mraid.resizeProps.width) {
+        if (!mraid.resizeProps.initialized) {
             throw ({'message' : 'could not resize because props not init'});
+        }
+        if (!mraid.resizeProps.valid) {
+            throw ({'message' : 'could not resize because props not valid'});
         }
     },
 
@@ -42,7 +48,11 @@ mraid = {
 */
     setResizeProperties : function (props) {
         $log.it('setting properties', DEBUG);
-        var resizeProps = mraid.resizeProps;
+        var resizeProps = mraid.resizeProps,
+            positionAllowed = true;
+
+        //assume failure
+        resizeProps.valid = false;
 
         //check invalid types
         if (isNaN(parseInt(props.width, 10))) {
@@ -84,14 +94,64 @@ mraid = {
         }
 
         //check too large range
-        if (props.width > window.outerWidth && !props.allowOffscreen) {
+        if (props.width > window.innerWidth && !props.allowOffscreen) {
             throw ({'message' : 'resize.width is too large to not allow off screen'});
         }
-        if (props.height > window.outerHeight && !props.allowOffscreen) {
+        if (props.height > window.innerHeight && !props.allowOffscreen) {
             throw ({'message' : 'resize.height is too large to not allow off screen'});
         }
 
+        //check close position offscreen
+        switch (props.customClosePosition) {
+        case 'top-left':
+             //assume default location is at 0,0
+            if (props.offsetX < 0 || props.offsetY < 0) {
+                positionAllowed = false;
+            }
+            break;
+        case 'top-right':
+             //assume default location is at 0,0 and width requested is full screen
+            if (props.width + props.offsetX > window.innerWidth || props.offsetY < 0) {
+                positionAllowed = false;
+            }
+            break;
+        case 'center':
+            //@TODO
+            break;
+        case 'bottom-left':
+            //assume default location is at 0,0 and height requested is full screen
+            if (props.offsetX < 0 || props.height + props.offsetY > window.innerHeight) { 
+                positionAllowed = false;
+            }
+            break;
+        case 'bottom-right':
+            //assume default location is at 0,0 and height requested is full screen
+            if (props.width + props.offsetX > window.innerWidth || props.height + props.offsetY > window.innerHeight) {
+                positionAllowed = false;
+            }
+            break;
+        case 'top-center':
+            //assume default location is at 0,0; @TODO width check
+            if (props.offsetY < 0) {
+                positionAllowed = false;
+            }
+            break;
+        case 'bottom-center':
+             //assume default location is at 0,0 and height requested is full screen; @TODO width check
+            if (props.height + props.offsetY > window.innerHeight) {
+                positionAllowed = false;
+            }
+            break;
+        default : 
+            positionAllowed = true;
+        }
+        if (props.allowOffscreen && !positionAllowed) {
+            throw ({'message' : 'resize.customClosePosition can not be offscreen'});
+        }
+
         //set values
+        resizeProps.initialized = true;
+        resizeProps.valid = true;
         resizeProps.width = props.width;
         resizeProps.height = props.height;
         resizeProps.offsetX = props.offsetX;
@@ -131,8 +191,8 @@ mraid = {
     getMaxSize : function() {
         $log.it('getting max size', DEBUG);
         var maxSize = {
-            'width' : window.outerWidth,
-            'height' : window.outerHeight
+            'width' : window.innerWidth,
+            'height' : window.innerHeight
         };
         return maxSize;
     },
