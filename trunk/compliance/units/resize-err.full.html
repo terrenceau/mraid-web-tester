@@ -1,6 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
 <!-- 
 This IAB MRAID test creative was built by Nathan Carver, currently VP of Engineering at Crisp Media, Inc. on March 26, 2014.
 -->
+<head>
+    <title>Test MRAID resize errors</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <!-- full page creative provides its own viewport -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    
+    <!-- uncomment next line to include mraid mock object for browser testing -->
+    <script type="text/javascript" src="../assets/mraid.mock.js"></script>
 
 <!-- -------------------------------------------------------------------------- -->    
 <!-- SNIPPET STARTS HERE FOR CUT-AND-PASTE TO USE THIS PAGE AS AN HTML FRAGMENT -->    
@@ -855,6 +866,9 @@ A resized ad must position itself such that the entire close event region appear
 
 </script>
 
+</head>
+
+<body>
     <!-- container div wraps all labels and buttons -->
     <div id="bannerDiv">
         <!-- instruction for first line -->
@@ -895,4 +909,8 @@ A resized ad must position itself such that the entire close event region appear
 
 <!-- ------------------------------------------------------------------------ -->    
 <!-- SNIPPET ENDS HERE FOR CUT-AND-PASTE TO USE THIS PAGE AS AN HTML FRAGMENT -->
+<!--    BUT BE SURE TO REMOVE THE </HEAD> <BODY> TAGS MANUALLY    -->
 <!-- ------------------------------------------------------------------------ -->    
+
+</body>
+</html>
