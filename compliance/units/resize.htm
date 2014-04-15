@@ -16,10 +16,10 @@
 		<div style="position:absolute;top:90px;left:56px;background-color:rgb(238,50,36);"><div style="width:37px;height:37px;display:table-cell;text-align:center;vertical-align:middle;font-family:Arial,Helvetica,sans-serif;font-size:8px;" onclick="javascript:openSite('http://www.iab.net/iab_products_and_industry_services/508676/mobile_guidance/mraid');" >Open URL</div></div>
 		<div style="position:absolute;top:90px;left:113px;background-color:rgb(238,50,36);"><div style="width:37px;height:37px;display:table-cell;text-align:center;vertical-align:middle;font-family:Arial,Helvetica,sans-serif;font-size:8px;" onclick="javascript:openSite('https://maps.google.com/maps?q=Interactive+Advertising+Bureau+116+East+27th+Street,+7th+Floor+New+York,+New+York+10016&hl=en&sll=37.556536,-122.31563&sspn=0.315717,0.463142&t=m&hq=Interactive+Advertising+Bureau+116+East+27th+Street,+7th+Floor+New+York,+New+York+10016&z=15')" >Click to Map</div></div>
 		<div style="position:absolute;top:90px;left:170px;background-color:rgb(238,50,36);"><div style="width:37px;height:37px;display:table-cell;text-align:center;vertical-align:middle;font-family:Arial,Helvetica,sans-serif;font-size:8px;" onclick="javascript:clickToAppStore();" >Click to App</div></div>
-		<div style="position:absolute;top:90px;left:227px;background-color:rgb(238,50,36);"><div style="width:37px;height:37px;display:table-cell;text-align:center;vertical-align:middle;font-family:Arial,Helvetica,sans-serif;font-size:8px;" onclick="javascript:playVideo('http://admarvel.s3.amazonaws.com/demo/mraid/iab/IAB_Outro.iPhoneSmall.mp4');" >Play Video</div></div>
+		<div style="position:absolute;top:90px;left:227px;background-color:rgb(238,50,36);"><div style="width:37px;height:37px;display:table-cell;text-align:center;vertical-align:middle;font-family:Arial,Helvetica,sans-serif;font-size:8px;" onclick="javascript:playVideo('http://webtester.mraid.org/compliance/assets/iab-video-small.mp4');" >Play Video</div></div>
 	
 		<div style="position:absolute;top:147px;left:56px;background-color:rgb(238,50,36);"><div style="width:37px;height:37px;display:table-cell;text-align:center;vertical-align:middle;font-family:Arial,Helvetica,sans-serif;font-size:8px;" onclick="javascript:sendSMS('12123804700');" >SMS</div></div>
-		<div style="position:absolute;top:147px;left:113px;background-color:rgb(238,50,36);"><div style="width:37px;height:37px;display:table-cell;text-align:center;vertical-align:middle;font-family:Arial,Helvetica,sans-serif;font-size:8px;" onclick="javascript:storePicture('http://admarvel.s3.amazonaws.com/demo/mraid/iab/new-iab-logo.gif')" >Store Picture</div></div>
+		<div style="position:absolute;top:147px;left:113px;background-color:rgb(238,50,36);"><div style="width:37px;height:37px;display:table-cell;text-align:center;vertical-align:middle;font-family:Arial,Helvetica,sans-serif;font-size:8px;" onclick="javascript:storePicture('http://webtester.mraid.org/compliance/assets/iab-logo.gif')" >Store Picture</div></div>
 		<div style="position:absolute;top:147px;left:170px;background-color:rgb(238,50,36);"><div style="width:37px;height:37px;display:table-cell;text-align:center;vertical-align:middle;font-family:Arial,Helvetica,sans-serif;font-size:8px;" onclick="javascript:createCalendarEvent()" >Create Calendar Event</div></div>
 		<div style="position:absolute;top:147px;left:227px;background-color:rgb(238,50,36);"><div style="width:37px;height:37px;display:table-cell;text-align:center;vertical-align:middle;font-family:Arial,Helvetica,sans-serif;font-size:8px;" onclick="javascript:callNumber('12123804700');" >Click to Call</div></div>
 	</div>
@@ -44,7 +44,7 @@ function sendSMS(number)
 {
 	if (!mraid.supports("sms"))
 	{
-		alert("MRAID says SMS is not supported on this device.");
+		logMRAIDMessage("SMS is not supported on this device.");
 	}
 	else
 	{
@@ -56,7 +56,7 @@ function callNumber(number)
 {
 	if (!mraid.supports("tel"))
 	{
-		alert("MRAID says calling is not supported on this device.");
+		logMRAIDMessage("Calling is not supported on this device.");
 	}
 	else
 	{
@@ -73,7 +73,7 @@ function storePicture(url)
 {
 	if (!mraid.supports("storePicture"))
 	{
-		alert("MRAID says storePicture is not supported on this device.");
+		logMRAIDMessage("storePicture is not supported on this device.");
 	}
 	else
 	{
@@ -85,7 +85,7 @@ function createCalendarEvent()
 {
 	if (!mraid.supports("calendar"))
 	{
-		alert("MRAID says calendar is not supported on this device.");
+		logMRAIDMessage("Calendar is not supported on this device.");
 	}
 	else
 	{
@@ -99,15 +99,15 @@ function clickToAppStore()
 {
 	if (isIOSDevice())
 	{
-		openSite('https://itunes.apple.com/us/app/iab-mixx-conference-expo-2013/id692929826?mt=8');
+		openSite('https://itunes.apple.com/us/app/iab-interactive-advertising/id795405931?mt=8');
 	}
 	else if (isAndroidDevice())
 	{
-		openSite('https://play.google.com/store/apps/details?id=com.coreapps.android.followme.iab2013mixx&hl=en');
+		openSite('https://play.google.com/store/apps/details?id=com.coreapps.android.followme.iabevents');
 	}
 	else
 	{
-		alert("There is no supported app for this device.");
+		logMRAIDMessage("There is no app strong link available for this device.");
 	}
 }
 
@@ -147,11 +147,20 @@ function showMyAd()
 	var el = document.getElementById("normal");
     el.style.display = '';
 
-	mraid.addEventListener("stateChange", updateAd);  
+	mraid.addEventListener("stateChange", updateAd);
+	mraid.addEventListener("sizeChange", sizeChangeHandler);
+	mraid.addEventListener("error", errorHandler);  
 }
 
 function resize()
 {	
+	// Checking default position before doing resize just to see if SDK is reporting correct location
+	var defaultPositionFrame = mraid.getDefaultPosition();
+	var defaultPositionDisplayString = defaultPositionFrame.x + "," + defaultPositionFrame.y + "," + defaultPositionFrame.width + "," + defaultPositionFrame.height;
+	logMRAIDMessage("Default position of banner: " + defaultPositionDisplayString);
+	
+	// Resizing with offset 0,0 so should expand down from banner ideally unless there is not enough space.
+	// If so since allowOffscreen is false it should should go down as much as possible and go up for the rest.
     mraid.setResizeProperties({"width":320,"height":250,"offsetX":0,"offsetY":0,"allowOffscreen":false});
     mraid.resize();
 }
@@ -166,6 +175,32 @@ function updateAd(state)
 	{ 
 		toggleLayer('resized', 'normal');
 	}
+}
+
+function sizeChangeHandler(width, height)
+{
+	// This should get fired whenever the ad is resized	
+	logMRAIDMessage("sizeChange event fired!: width = " + width + ", height = " + height);
+}
+
+function errorHandler(message, action)
+{	
+	logMRAIDMessage("error event fired!: message = " + message + ", action = " + action);
+	
+	if (action == "createCalendarEvent")
+	{
+		logMRAIDMessage("User canceled createCalendEvent action!");	
+	}
+	else if (action == "storePicture")
+	{
+		logMRAIDMessage("User canceled storePicture action!");
+	}
+}
+
+function logMRAIDMessage(message)
+{
+	// Replace this method with whatever logging best works for your test environment
+	console.log("MRAID: " + message);
 }
 
 function toggleLayer(fromLayer, toLayer)

@@ -2,14 +2,14 @@
 
 <script src="mraid.js"></script> 
 
-<div id="container" style="width:320px;height:480px;background-color:#ffffff;">	
-	<video id="adVideo" webkit-playsinline src="http://webtester.mraid.org/compliance/assets/iab-video.mp4"></video>			
+<div id="container" style="width:320px;height:480px;background-color:#000000;">	
+	<video id="adVideo" webkit-playsinline src="http://once.unicornmedia.com/now/od/auto/d8371d05-0b04-42fc-892f-b0e9ad6db2b5/6fd31a0f-775a-49ca-849b-228d70b5f9ac/87c56e71-2005-473c-a8da-2d45053413a9/578-1588-iab-video-small.mp4"></video>			
 </div>
 
 <style type="text/css">
 body
 {
-	background-color:#FFFFFF;
+	background-color:#000000;
 }
 </style>
 
@@ -86,11 +86,15 @@ function prepareMyAd()
 	video.style.width = newWidth + "px";
 	video.style.height = newHeight + "px";
 	video.style.margin = topBottomMargins + "px " + leftRightMargins + "px";
+	
+	// Add event listeners
+	mraid.addEventListener("stateChange", handleStateChanged);
+	mraid.addEventListener("error", errorHandler); 
 		
 	// See if ad is visible yet otherwise wait for it to be visible.
 	if (!mraid.isViewable())
 	{
-		mraid.addEventListener("viewableChange", isInterstitialDisplayed); 
+		mraid.addEventListener("viewableChange", isInterstitialViewable); 
 	}
 	else
 	{
@@ -98,12 +102,42 @@ function prepareMyAd()
 	}
 }
 
-function isInterstitialDisplayed(displayed)
+function handleStateChanged(state)
+{	
+	logMRAIDMessage("state change event fired!: state = " + state);
+	
+	if (state == "hidden")
+	{
+		logMRAIDMessage("Interstitial has become hidden which means interstitial was closed.");
+	}
+}
+
+function errorHandler(message, action)
+{	
+	logMRAIDMessage("error event fired!: message = " + message + ", action = " + action);
+}
+
+function logMRAIDMessage(message)
+{
+	// Replace this method with whatever logging best works for your test environment
+	console.log("MRAID: " + message);
+}
+
+function isInterstitialViewable(displayed)
 {	
 	if (displayed)
 	{
-		mraid.removeEventListener("viewableChange", isInterstitialDisplayed);
+		mraid.removeEventListener("viewableChange", isInterstitialViewable);
+		mraid.addEventListener("viewableChange", isInterstitialNotViewable);
 		showMyAd();
+	}
+}
+
+function isInterstitialNotViewable(displayed)
+{
+	if (!displayed)
+	{	
+		logMRAIDMessage("Interstitial has become not viewable after having been displayed.");
 	}
 }
 
